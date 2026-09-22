@@ -120,7 +120,7 @@ training:
   discretionary_hours_median: 7.0           # log-normal, scaled by archetype and learner trait
   discretionary_sigma: 0.8
   archetype_multiplier:
-    Compliance only: 0.15
+    Compliance only: 0.45
     Technical deep-diver: 1.8
     Leadership track: 1.6
     Digital upskiller: 1.5

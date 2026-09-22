@@ -25,16 +25,13 @@ debug:
 data:
 	$(PYTHON) -m generator.load
 
-dbt:
-	$(DBT) build $(DBT_FLAGS) --exclude path:models/ml
+dbt:              ## staging -> core -> ml feature views; every model is tested before its children build
+	$(DBT) build $(DBT_FLAGS) --exclude tag:ml_output
 
-ml:
-	$(PYTHON) -m ml.pay_equity
-	$(PYTHON) -m ml.learner_segments
-	$(PYTHON) -m ml.attrition
-	$(PYTHON) -m ml.forecast
-	$(DBT) build $(DBT_FLAGS) --select path:models/ml
+ml:               ## pay_equity -> learner_segments -> attrition -> forecast, then test the ml.* outputs
+	$(PYTHON) -m ml
+	$(DBT) test $(DBT_FLAGS) --select tag:ml_output
 
 test:
-	$(PYTHON) -m pytest -q
+	$(PYTHON) -m pytest -q tests
 	$(DBT) test $(DBT_FLAGS)

@@ -21,6 +21,93 @@ sources:
       - name: ats_applications
       - name: sec_hrbp_access
 
+  - name: ml
+    description: Model outputs written by the Python scripts in ml/. Power BI reads these; it never fits models.
+    schema: ml
+    config:
+      tags: [ml_output]
+    tables:
+      - name: attrition_scores
+        columns:
+          - name: employee_key
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments: {to: ref('dim_employee'), field: employee_key}
+          - name: p_leave
+            data_tests:
+              - not_null
+              - accepted_range:
+                  arguments: {min_value: 0, max_value: 1}
+          - name: decile
+            data_tests:
+              - accepted_range:
+                  arguments: {min_value: 1, max_value: 10}
+          - name: split
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ["train", "test", "current"]}
+      - name: attrition_coefficients
+        columns:
+          - name: variable
+            data_tests: [unique, not_null]
+      - name: attrition_roc
+        columns:
+          - name: fpr
+            data_tests:
+              - accepted_range:
+                  arguments: {min_value: 0, max_value: 1}
+      - name: attrition_metrics
+        columns:
+          - name: metric
+            data_tests: [unique, not_null]
+      - name: pay_coefficients
+        data_tests:
+          - unique_combination:
+              arguments: {columns: [model, variable]}
+        columns:
+          - name: model
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ["without_perf", "with_perf", "fair_pay"]}
+      - name: pay_residuals
+        columns:
+          - name: employee_key
+            data_tests:
+              - unique
+              - relationships:
+                  arguments: {to: ref('dim_employee'), field: employee_key}
+          - name: pred_salary
+            data_tests:
+              - accepted_range:
+                  arguments: {min_value: 1}
+      - name: training_segments
+        columns:
+          - name: employee_key
+            data_tests:
+              - unique
+              - relationships:
+                  arguments: {to: ref('dim_employee'), field: employee_key}
+          - name: segment_label
+            data_tests: [not_null]
+      - name: headcount_forecast
+        data_tests:
+          - unique_combination:
+              arguments: {columns: [row_type, month_end, org_unit_key]}
+        columns:
+          - name: org_unit_key
+            data_tests:
+              - relationships:
+                  arguments: {to: ref('dim_org_unit'), field: org_unit_key}
+          - name: month_end
+            data_tests:
+              - relationships:
+                  arguments: {to: ref('dim_date'), field: date}
+          - name: row_type
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ["Forecast", "Backtest"]}
+
 # ============================================================================ models
 models:
   # ------------------------------------------------------------------ staging

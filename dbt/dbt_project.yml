@@ -28,3 +28,6 @@ models:
     ml:
       +schema: ml
       +materialized: view
+
+flags:
+  send_anonymous_usage_stats: false
