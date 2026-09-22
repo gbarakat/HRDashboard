@@ -1,0 +1,210 @@
+# Synthetic people-analytics warehouse: every number that shapes the data lives here.
+# All randomness is seeded from `seed`; re-running the generator gives identical output.
+
+seed: 42
+
+dates:
+  start: 2018-01-01          # first day of the observation window
+  end: 2025-12-31            # last day of the observation window
+  earliest_hire: 1990-01-01  # earliest possible hire date for the opening population
+
+population:
+  total_employees: 6000      # unique emp_ids ever employed in the window
+  opening_headcount: 2800    # active on 2017-12-31; the rest (3,200) are hired 2018-2025
+  female_decline_to_top: 0.30  # female share at the top rung = lowest-rung share x (1 - 0.30)
+  female_share_by_family:    # share of women at the lowest rung of each job ladder
+    Flight Deck: 0.07
+    Cabin Crew: 0.72
+    Operations Control: 0.32
+    Engineering: 0.06
+    Airport Services: 0.46
+    Commercial: 0.48
+    Corporate Functions: 0.52
+  nationality:               # share of population
+    National: 0.30
+    Indian: 0.17
+    Filipino: 0.12
+    Egyptian: 0.08
+    Pakistani: 0.07
+    British: 0.06
+    Other Arab: 0.08
+    Other European: 0.05
+    Other Asian: 0.07
+  commute_km:                # log-normal; ~25% of employees commute more than 30 km
+    median: 18.0
+    sigma: 0.75
+    min: 1.0
+    max: 120.0
+  fte_mix: {1.0: 0.95, 0.8: 0.03, 0.5: 0.02}   # part-time never applies to Flight Deck
+  opening_tenure_mean_years: 7.5
+  learner_archetypes:        # planted structure k-means should recover
+    Compliance only: 0.35
+    Technical deep-diver: 0.25
+    Leadership track: 0.15
+    Digital upskiller: 0.15
+    Minimal engagement: 0.10
+
+hiring:
+  hires_per_year: 400
+  month_weights:             # PLANTED: Sep-Nov peak (36% of hires vs 25% if flat)
+    1: 0.07
+    2: 0.07
+    3: 0.08
+    4: 0.07
+    5: 0.07
+    6: 0.07
+    7: 0.07
+    8: 0.08
+    9: 0.13
+    10: 0.12
+    11: 0.11
+    12: 0.06
+
+attrition:
+  # Voluntary exit within the next 12 months for employees active at a 31-Dec snapshot:
+  # P = logistic(intercept + sum of effects).  Effects are log-odds.
+  intercept: -2.40
+  planted_odds_ratio_commute_gt_30km: 1.8   # PLANTED
+  planted_odds_ratio_training_gt_20h: 0.6   # PLANTED (hours completed in the snapshot year)
+  tenure_band_effects:                      # log-odds vs 2-5 years
+    "0-6m": 0.90
+    "6-12m": 0.60
+    "1-2y": 0.30
+    "2-5y": 0.00
+    "5-10y": -0.35
+    "10y+": -0.70
+  rating_effects:                           # log-odds vs rating 3
+    low: 0.45        # rating 1-2
+    mid: 0.00        # rating 3
+    high: -0.15      # rating 4-5
+    none: 0.00       # not yet rated
+  age_lt_30_effect: 0.35
+  # Other exit types (annual probabilities, drawn only when no voluntary exit)
+  involuntary_by_rating: {1: 0.17, 2: 0.04, 3: 0.007, 4: 0.006, 5: 0.006, none: 0.013}
+  retirement_by_age: {58: 0.10, 60: 0.55}   # age >= key
+  transfer: 0.005
+  # First partial year after hire: monthly hazards by tenure month (highest in months 3-12)
+  new_hire_monthly_voluntary: {0: 0.003, 1: 0.004, 2: 0.006, 3: 0.020}   # month >= key
+  new_hire_monthly_involuntary: {0: 0.002, 1: 0.004, 5: 0.001}
+  notice_days: {Voluntary: 30, Involuntary: 7, Retirement: 90, Transfer: 30}
+  notice_days_senior: 90     # grade >= G9 or Flight Deck
+
+mobility:
+  promotion_date_mmdd: "04-01"              # annual cycle, same day as the pay review
+  promotion_prob_by_rating: {1: 0.0, 2: 0.0, 3: 0.035, 4: 0.13, 5: 0.26}
+  lateral_move_rate: 0.085                  # per employee-year, excludes re-org
+  internal_requisition_fills_per_year: 22   # moves via a posted requisition (Internal channel)
+  reorg:                                    # PLANTED: a whole department changes division
+    date: 2023-07-01
+    department: Airport Services
+    from_division: Commercial
+    to_division: Flight Operations
+
+performance:
+  rating_distribution: {1: 0.05, 2: 0.15, 3: 0.45, 4: 0.25, 5: 0.10}
+  potential_distribution: {1: 0.25, 2: 0.50, 3: 0.25}
+  rating_potential_corr: 0.30               # target Pearson r of the discrete scores
+  persistent_weight: 0.6                    # loading of the stable person trait on the yearly rating latent
+  min_tenure_days_for_rating: 92            # hired after ~1 Oct is not rated that year
+
+training:
+  mandatory_hours_by_family:                # recurrent / regulatory training per year
+    Flight Deck: 16
+    Cabin Crew: 12
+    Engineering: 12
+    Operations Control: 8
+    Airport Services: 6
+    Commercial: 3
+    Corporate Functions: 3
+  onboarding_hours: 24                      # added in the hire year
+  discretionary_hours_median: 7.0           # log-normal, scaled by archetype and learner trait
+  discretionary_sigma: 0.8
+  archetype_multiplier:
+    Compliance only: 0.15
+    Technical deep-diver: 1.8
+    Leadership track: 1.6
+    Digital upskiller: 1.5
+    Minimal engagement: 0.0
+
+pay:
+  currency: USD
+  review_date_mmdd: "04-01"                 # annual pay review, start of fiscal year
+  grade_midpoint_2018:                      # annual base salary midpoint
+    G1: 18000
+    G2: 22000
+    G3: 27000
+    G4: 33000
+    G5: 40000
+    G6: 50000
+    G7: 62000
+    G8: 78000
+    G9: 96000
+    G10: 125000
+    G11: 160000
+    G12: 210000
+  band_spread: 0.20                         # min = mid * 0.8, max = mid * 1.2
+  structure_increase_per_year: 0.025        # bands and pay move with the market
+  tenure_effect_per_year: 0.012             # log-pay per year of service, capped
+  tenure_cap_years: 15
+  rating_effect: 0.025                      # log-pay per rating point above 3
+  family_premium:                           # log-pay vs Corporate Functions
+    Flight Deck: 0.06
+    Cabin Crew: -0.03
+    Operations Control: 0.02
+    Engineering: 0.04
+    Airport Services: -0.04
+    Commercial: 0.00
+    Corporate Functions: 0.00
+  location_premium: {HUB: 0.0, MRO: 0.0, LHR: 0.12, FRA: 0.10, BOM: -0.15, SIN: 0.08}
+  offset: -0.09                             # centres compa-ratio near 1.0
+  person_sd: 0.045                          # persistent individual pay effect
+  year_sd: 0.015
+  planted_female_gap: -0.04                 # PLANTED: 4% lower base after all legitimate factors
+  housing_allowance_pct: {low: 0.25, high: 0.30}   # grade < G7 / >= G7
+  transport_allowance: 3600
+  flying_allowance_pct: {Flight Deck: 0.20, Cabin Crew: 0.15}
+
+recruiting:
+  internal_fill_grade_step: 0.5             # share of internal fills that are one grade up
+  cancelled_share: 0.035                    # of requisitions
+  open_at_end: 30                           # still open on 2025-12-31
+  channel_hire_share:                       # share of EXTERNAL hires by channel
+    Referral: 0.17
+    LinkedIn: 0.33
+    Job board: 0.24
+    Agency: 0.12
+    Campus: 0.14
+  channel_yield:                            # accepted / applications
+    Internal: 0.25
+    Referral: 0.12
+    LinkedIn: 0.04
+    Job board: 0.03
+    Agency: 0.10
+    Campus: 0.05
+  offer_decline_rate: 0.18                  # declined offers / offers
+  days_open_to_screen: [5, 20]
+  days_screen_to_offer: [18, 55]            # x1.6 for critical roles
+  days_offer_to_accept: [2, 10]
+  days_accept_to_start: [14, 60]            # internal fills [7, 30]
+  external_cost:                            # per filled requisition, USD
+    Internal: 0
+    Referral: 2000                          # referral bonus
+    LinkedIn: 1200
+    Job board: 450
+    Agency: 0.15                            # share of annual base
+    Campus: 1800
+  recruiter_hours: [12, 45]
+  recruiter_hourly_cost: 48
+
+security:                                   # RLS mapping for the HRBP role
+  hrbp_emails:
+    Flight Operations: hrbp.flightops@example.com
+    Technical Operations: hrbp.techops@example.com
+    Commercial: hrbp.commercial@example.com
+    Corporate Services: hrbp.corporate@example.com
+
+raw:
+  duplicate_share:                          # planted re-extract duplicates, removed in staging
+    hris_job_history: 0.005
+    ats_applications: 0.003
+    lms_completions: 0.01

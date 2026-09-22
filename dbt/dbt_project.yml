@@ -9,3 +9,22 @@ macro-paths: ["macros"]
 
 target-path: target
 clean-targets: [target, dbt_packages, logs]
+
+vars:
+  window_start: "2018-01-01"        # first month of the reporting window
+  window_end: "2025-12-31"          # last month of the reporting window
+  calendar_start: "2017-01-01"      # dim_date covers requisitions opened before the window
+  calendar_end: "2027-12-31"        # and the 24-month forecast horizon
+  recruiter_hourly_cost: 48         # USD, internal recruiting cost per recruiter hour
+
+models:
+  people_analytics:
+    staging:
+      +schema: staging
+      +materialized: view
+    core:
+      +schema: core
+      +materialized: table
+    ml:
+      +schema: ml
+      +materialized: view

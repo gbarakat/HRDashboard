@@ -1,0 +1,394 @@
+version: 2
+
+# ============================================================================ sources
+sources:
+  - name: raw
+    description: Source-system extracts loaded as text by generator/load.py (HRIS, ATS, payroll, performance, LMS).
+    schema: raw
+    tables:
+      - name: hris_persons
+      - name: hris_job_history
+      - name: hris_org_units
+      - name: hris_jobs
+      - name: hris_locations
+      - name: perf_reviews
+      - name: lms_courses
+      - name: lms_completions
+      - name: comp_salary_history
+      - name: comp_pay_bands
+      - name: ats_sources
+      - name: ats_requisitions
+      - name: ats_applications
+      - name: sec_hrbp_access
+
+# ============================================================================ models
+models:
+  # ------------------------------------------------------------------ staging
+  - name: stg_hris__persons
+    columns:
+      - name: emp_id
+        data_tests: [unique, not_null]
+      - name: gender
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ["Female", "Male"]}
+      - name: hire_date
+        data_tests: [not_null]
+      - name: commute_km
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments: {min_value: 0, max_value: 200}
+
+  - name: stg_hris__job_history
+    description: De-duplicated effective-dated job history (planted re-extract duplicates removed).
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [emp_id, effective_date, action_code]}
+    columns:
+      - name: action_code
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ["HIRE", "PROMOTION", "TRANSFER", "INTERNAL_HIRE", "REORG", "TERMINATION"]}
+      - name: exit_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["Voluntary", "Involuntary", "Retirement", "Transfer"]}
+
+  - name: stg_hris__org_units
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [team_code, valid_from]}
+
+  - name: stg_hris__jobs
+    columns:
+      - name: job_code
+        data_tests: [unique, not_null]
+      - name: grade_no
+        data_tests:
+          - accepted_range:
+              arguments: {min_value: 1, max_value: 12}
+
+  - name: stg_hris__locations
+    columns:
+      - name: station_code
+        data_tests: [unique, not_null]
+
+  - name: stg_perf__reviews
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [emp_id, review_year]}
+    columns:
+      - name: review_id
+        data_tests: [unique, not_null]
+
+  - name: stg_lms__courses
+    columns:
+      - name: course_code
+        data_tests: [unique, not_null]
+
+  - name: stg_lms__completions
+    description: De-duplicated LMS completions (planted double-sync duplicates removed).
+    columns:
+      - name: completion_id
+        data_tests: [unique, not_null]
+
+  - name: stg_comp__salary_history
+    columns:
+      - name: pay_record_id
+        data_tests: [unique, not_null]
+
+  - name: stg_comp__pay_bands
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [grade, band_year]}
+
+  - name: stg_ats__sources
+    columns:
+      - name: source_code
+        data_tests: [unique, not_null]
+
+  - name: stg_ats__requisitions
+    columns:
+      - name: req_id
+        data_tests: [unique, not_null]
+
+  - name: stg_ats__applications
+    description: De-duplicated ATS applications (planted re-extract duplicates removed).
+    columns:
+      - name: application_id
+        data_tests: [unique, not_null]
+
+  - name: stg_sec__hrbp_access
+    columns:
+      - name: user_email
+        data_tests: [unique, not_null]
+
+  # --------------------------------------------------------------- dimensions
+  - name: dim_date
+    description: Calendar 2017-01-01 to 2027-12-31 with an April-March fiscal year.
+    columns:
+      - name: date
+        data_tests: [unique, not_null]
+      - name: date_key
+        data_tests: [unique, not_null]
+
+  - name: dim_employee
+    description: SCD Type 2 employee dimension. One row per employee version; a version opens on hire, promotion, move or re-org.
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [emp_id, valid_from]}
+    columns:
+      - name: employee_key
+        data_tests: [unique, not_null]
+      - name: emp_id
+        data_tests: [not_null]
+      - name: gender
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["Female", "Male"]}
+      - name: exit_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["Voluntary", "Involuntary", "Retirement", "Transfer"]}
+      - name: team_code
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_hris__org_units'), field: team_code}
+      - name: job_code
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_job'), field: job_code}
+
+  - name: dim_org_unit
+    description: Flattened hierarchy division > department > section > team, effective-dated for the 2023 re-org.
+    columns:
+      - name: org_unit_key
+        data_tests: [unique, not_null]
+      - name: division
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ["Flight Operations", "Technical Operations", "Commercial", "Corporate Services"]}
+
+  - name: dim_job
+    columns:
+      - name: job_key
+        data_tests: [unique, not_null]
+      - name: job_code
+        data_tests: [unique, not_null]
+      - name: grade
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11", "G12"]}
+
+  - name: dim_location
+    columns:
+      - name: location_key
+        data_tests: [unique, not_null]
+
+  - name: dim_channel
+    columns:
+      - name: channel_key
+        data_tests: [unique, not_null]
+      - name: channel
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["Internal", "Referral", "LinkedIn", "Job board", "Agency", "Campus"]}
+
+  - name: dim_program
+    columns:
+      - name: program_key
+        data_tests: [unique, not_null]
+
+  - name: security_hrbp
+    columns:
+      - name: user_email
+        data_tests: [unique, not_null]
+      - name: division
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_org_unit'), field: division}
+
+  # -------------------------------------------------------------------- facts
+  - name: fact_headcount_monthly
+    description: Grain employee x month end (2017-12-31 opening balance + 96 reporting months).
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [emp_id, month_end]}
+    columns:
+      - name: employee_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_employee'), field: employee_key}
+      - name: org_unit_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_org_unit'), field: org_unit_key}
+      - name: job_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_job'), field: job_key}
+      - name: location_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_location'), field: location_key}
+      - name: month_end
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_date'), field: date}
+
+  - name: fact_employee_event
+    description: One row per hire, exit, move or promotion inside the reporting window.
+    columns:
+      - name: event_key
+        data_tests: [unique, not_null]
+      - name: employee_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_employee'), field: employee_key}
+      - name: event_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ["Hire", "Exit", "Move", "Promotion"]}
+      - name: move_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["Lateral", "Internal requisition", "Reorg"]}
+      - name: exit_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["Voluntary", "Involuntary", "Retirement", "Transfer"]}
+      - name: org_unit_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_org_unit'), field: org_unit_key}
+      - name: event_date
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_date'), field: date}
+      - name: notice_date
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_date'), field: date}
+
+  - name: fact_separation
+    description: One row per exit (view over fact_employee_event) with tenure and profile at exit.
+    columns:
+      - name: separation_key
+        data_tests: [unique, not_null]
+      - name: tenure_months
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments: {min_value: 0}
+
+  - name: fact_compensation
+    description: Grain employee x pay review date (annual, 1 April).
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [emp_id, pay_review_date]}
+    columns:
+      - name: employee_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_employee'), field: employee_key}
+      - name: compa_ratio
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments: {min_value: 0.5, max_value: 1.6}
+      - name: base_salary
+        data_tests:
+          - accepted_range:
+              arguments: {min_value: 1}
+
+  - name: fact_requisition
+    description: Accumulating snapshot, one row per requisition.
+    columns:
+      - name: requisition_key
+        data_tests: [unique, not_null]
+      - name: req_id
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments: {values: ["Filled", "Cancelled", "Open"]}
+      - name: channel_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_channel'), field: channel_key}
+      - name: open_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_date'), field: date}
+      - name: days_to_fill
+        data_tests:
+          - accepted_range:
+              arguments: {min_value: 0}
+
+  - name: fact_application
+    description: Grain candidate x requisition with the furthest funnel stage reached.
+    columns:
+      - name: application_key
+        data_tests: [unique, not_null]
+      - name: requisition_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('fact_requisition'), field: requisition_key}
+      - name: channel_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_channel'), field: channel_key}
+      - name: stage_reached
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: [1, 2, 3, 4, 5], quote: false}
+
+  - name: fact_performance
+    description: Grain employee x review year.
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [emp_id, review_year]}
+    columns:
+      - name: rating
+        data_tests:
+          - accepted_range:
+              arguments: {min_value: 1, max_value: 5}
+      - name: potential
+        data_tests:
+          - accepted_range:
+              arguments: {min_value: 1, max_value: 3}
+      - name: nine_box_cell
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments: {min_value: 1, max_value: 9}
+
+  - name: fact_training
+    description: Grain employee x program x completion date.
+    columns:
+      - name: training_key
+        data_tests: [unique, not_null]
+      - name: program_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_program'), field: program_key}
+      - name: employee_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_employee'), field: employee_key}
+      - name: hours
+        data_tests:
+          - accepted_range:
+              arguments: {min_value: 0.5, max_value: 40}
