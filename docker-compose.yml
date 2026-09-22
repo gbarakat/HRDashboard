@@ -1,0 +1,22 @@
+name: people-analytics-dw
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: pa_postgres
+    environment:
+      POSTGRES_USER: ${PGUSER:-pa}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-pa_local_only}
+      POSTGRES_DB: ${PGDATABASE:-people_analytics}
+    ports:
+      - "${PGPORT:-5432}:5432"
+    volumes:
+      - pa_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  pa_pgdata:

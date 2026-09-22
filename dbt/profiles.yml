@@ -1,0 +1,12 @@
+people_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PGHOST', 'localhost') }}"
+      port: "{{ env_var('PGPORT', '5432') | as_number }}"
+      user: "{{ env_var('PGUSER', 'pa') }}"
+      password: "{{ env_var('PGPASSWORD', 'pa_local_only') }}"
+      dbname: "{{ env_var('PGDATABASE', 'people_analytics') }}"
+      schema: public
+      threads: 4
