@@ -1,0 +1,49 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["PgServer","PgDatabase"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Date
+ref table Employee
+ref table 'Org Unit'
+ref table Job
+ref table Location
+ref table Channel
+ref table Program
+ref table Headcount
+ref table 'Employee Event'
+ref table Separation
+ref table Compensation
+ref table Requisition
+ref table Application
+ref table Performance
+ref table Training
+ref table 'Security HRBP'
+ref table 'Attrition Score'
+ref table 'Attrition Coefficient'
+ref table 'Attrition ROC'
+ref table 'Attrition Metric'
+ref table 'Pay Coefficient'
+ref table 'Pay Residual'
+ref table 'Training Segment'
+ref table 'Headcount Forecast'
+ref table _Measures
+ref table Cutoff
+ref table 'Backfill Rate'
+ref table 'Remediation Threshold'
+ref table 'Leaver Cost'
+ref table 'Intervention Cost'
+ref table 'Funnel Stage'
+
+ref role HRBP
+

@@ -19,6 +19,7 @@ from sklearn.model_selection import train_test_split
 from ml import CONFIG, SEED, banner, read, write
 
 TENURE_BANDS = ["0-6m", "6-12m", "1-2y", "5-10y", "10y+"]          # reference: 2-5y
+TENURE_SORT = {"0-6m": 1, "6-12m": 2, "1-2y": 3, "2-5y": 4, "5-10y": 5, "10y+": 6}
 RATING_BANDS = ["low", "high", "none"]                              # reference: mid (rating 3)
 PLANTED = {
     "commute_over_30km": CONFIG["attrition"]["planted_odds_ratio_commute_gt_30km"],
@@ -78,8 +79,14 @@ def main() -> dict:
     snap.loc[labelled.index, "split"] = labelled["split"]
     snap["decile"] = snap.groupby("snapshot_date")["p_leave"].transform(
         lambda s: pd.qcut(s.rank(method="first"), 10, labels=False) + 1).astype(int)
+    x_all = design(snap)
+    snap["commute_over_30km"] = x_all["commute_over_30km"].astype(int)
+    snap["training_over_20h"] = x_all["training_over_20h"].astype(int)
+    snap["tenure_band_sort"] = snap["tenure_band"].map(TENURE_SORT)
     scores = snap[["employee_key", "emp_id", "org_unit_key", "snapshot_date", "p_leave", "decile", "split",
-                   "left_voluntary_12m"]].rename(columns={"left_voluntary_12m": "left_within_12m"})
+                   "left_voluntary_12m", "commute_over_30km", "training_over_20h", "tenure_band", "tenure_band_sort",
+                   "rating_band"]
+                  ].rename(columns={"left_voluntary_12m": "left_within_12m"})
     scores["p_leave"] = scores["p_leave"].round(6)
 
     base_rate = test["left_voluntary_12m"].mean()

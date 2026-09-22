@@ -1,0 +1,21 @@
+/// Funnel stages for the cumulative funnel visual (disconnected).
+table 'Funnel Stage'
+	lineageTag: bdfa5640-7438-595e-bcab-ac211d3e6635
+
+	column stage_no
+		isHidden
+		formatString: 0
+		lineageTag: 060cb6ba-7348-59ce-bea8-411088516ff1
+		summarizeBy: none
+		sourceColumn: [stage_no]
+
+	column stage_name
+		lineageTag: 7ab878ce-0968-5110-9372-11a00227b86a
+		summarizeBy: none
+		sourceColumn: [stage_name]
+		sortByColumn: stage_no
+
+	partition 'Funnel Stage' = calculated
+		mode: import
+		source = DATATABLE("stage_no", INTEGER, "stage_name", STRING, {{1, "Applied"}, {2, "Screened"}, {3, "Interviewed"}, {4, "Offered"}, {5, "Accepted"}})
+

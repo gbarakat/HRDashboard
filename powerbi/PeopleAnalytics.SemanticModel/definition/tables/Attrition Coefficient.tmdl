@@ -1,0 +1,63 @@
+/// Written by ml/attrition.py: logistic regression coefficients and odds ratios (associations, not causes).
+table 'Attrition Coefficient'
+	lineageTag: 6d8253b8-6981-56de-9037-3731cf87cfa3
+
+	column variable
+		dataType: string
+		lineageTag: d73a0d22-11c5-505d-94b9-3ea81b655078
+		summarizeBy: none
+		sourceColumn: variable
+
+	column coef
+		dataType: double
+		lineageTag: 5c350bff-5eba-5be9-9a0d-ee1fdf41fc0b
+		summarizeBy: none
+		sourceColumn: coef
+
+	column std_err
+		dataType: double
+		lineageTag: d8cb2d64-994e-5ed5-a54f-210c8dd6f9d8
+		summarizeBy: none
+		sourceColumn: std_err
+
+	column odds_ratio
+		dataType: double
+		lineageTag: 69213d5c-0d61-5239-9629-4857e06ff799
+		summarizeBy: none
+		sourceColumn: odds_ratio
+
+	column or_ci_low
+		dataType: double
+		lineageTag: adac9143-af43-57bb-b9d1-946521e4e7c0
+		summarizeBy: none
+		sourceColumn: or_ci_low
+
+	column or_ci_high
+		dataType: double
+		lineageTag: c19563e9-f80a-525b-a9cf-87b4870cd954
+		summarizeBy: none
+		sourceColumn: or_ci_high
+
+	column p_value
+		dataType: double
+		lineageTag: 71eca8ab-a148-5d1e-b340-27e2926a5da2
+		summarizeBy: none
+		sourceColumn: p_value
+
+	column planted_odds_ratio
+		dataType: double
+		lineageTag: 63f86bb3-1884-5a22-9e3e-32b069504edd
+		summarizeBy: none
+		sourceColumn: planted_odds_ratio
+
+	partition 'Attrition Coefficient' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "ml", Item = "attrition_coefficients"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

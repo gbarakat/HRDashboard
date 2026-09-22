@@ -1,0 +1,42 @@
+/// Recruiting channels.
+table Channel
+	lineageTag: 95f188d5-b1ca-511e-9e7c-5a114a6c4f30
+
+	column channel_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e5afe41f-0077-5059-9604-2fc9c61db330
+		summarizeBy: none
+		sourceColumn: channel_key
+
+	column source_code
+		dataType: string
+		lineageTag: 2816d8fd-e198-5970-8b4d-5a5f4ca88cc5
+		summarizeBy: none
+		sourceColumn: source_code
+
+	column channel
+		dataType: string
+		lineageTag: 3c668532-798b-5713-9e7a-b609c55aaa05
+		summarizeBy: none
+		sourceColumn: channel
+		sortByColumn: channel_key
+
+	column channel_type
+		dataType: string
+		lineageTag: 65a7b07b-d78f-53e1-883c-4b3aa02743d9
+		summarizeBy: none
+		sourceColumn: channel_type
+
+	partition Channel = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "dim_channel"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

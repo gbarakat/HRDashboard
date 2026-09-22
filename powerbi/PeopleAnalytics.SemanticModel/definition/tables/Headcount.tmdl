@@ -1,0 +1,126 @@
+/// Grain: employee x month end (2017-12-31 opening balance + 96 months).
+table Headcount
+	lineageTag: fdbf265f-b5b9-5c1b-be19-baaaaf86bf95
+
+	column month_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: ce2e074a-6dd8-564c-aa00-7d32a1f266d7
+		summarizeBy: none
+		sourceColumn: month_end
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column emp_id
+		dataType: string
+		isHidden
+		lineageTag: f50294ee-da74-5d6d-a697-898f7c9f4d4d
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: be2363d4-4fcb-5a4d-a3f6-53e17139d7f0
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 91beead4-ff98-5f4f-984a-0e1e7530b7b4
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7cd3cfe8-8cd5-5b63-919d-d69423bca9d4
+		summarizeBy: none
+		sourceColumn: job_key
+
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e6c1f63e-3b68-5e61-b326-f775a392e1e2
+		summarizeBy: none
+		sourceColumn: location_key
+
+	column fte
+		dataType: double
+		lineageTag: c71e1e3f-0293-5e00-b000-7e11e100a775
+		summarizeBy: none
+		sourceColumn: fte
+
+	column headcount
+		dataType: int64
+		formatString: 0
+		lineageTag: cc56bbd7-0fe4-54bd-9771-b0a002b55900
+		summarizeBy: none
+		sourceColumn: headcount
+
+	column is_hired_in_month
+		dataType: boolean
+		lineageTag: a891968e-7175-559e-9b9a-cff7b0dc2e14
+		summarizeBy: none
+		sourceColumn: is_hired_in_month
+
+	column tenure_months
+		dataType: int64
+		formatString: 0
+		lineageTag: ae0ffcfa-84a3-50b8-a8a1-670466300830
+		summarizeBy: none
+		sourceColumn: tenure_months
+
+	column tenure_band
+		dataType: string
+		lineageTag: 29bba98b-cd1b-5291-81f3-6cfeb5ff2969
+		summarizeBy: none
+		sourceColumn: tenure_band
+		sortByColumn: tenure_band_sort
+
+	column tenure_band_sort
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 04401c2b-3293-5cd2-8be2-b54288cc8e8f
+		summarizeBy: none
+		sourceColumn: tenure_band_sort
+
+	column age_years
+		dataType: int64
+		formatString: 0
+		lineageTag: c46d64fc-e262-5472-beb0-9a1bf00cf4a7
+		summarizeBy: none
+		sourceColumn: age_years
+
+	column age_band
+		dataType: string
+		lineageTag: 0d9e8252-76db-568f-b70a-6044989014d4
+		summarizeBy: none
+		sourceColumn: age_band
+		sortByColumn: age_band_sort
+
+	column age_band_sort
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 70bd4dab-af4d-58de-b1a4-3c80e8ed0cdf
+		summarizeBy: none
+		sourceColumn: age_band_sort
+
+	partition Headcount = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "fact_headcount_monthly"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

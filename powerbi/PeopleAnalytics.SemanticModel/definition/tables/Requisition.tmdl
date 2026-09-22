@@ -1,0 +1,203 @@
+/// Accumulating snapshot: one row per requisition with milestone dates.
+table Requisition
+	lineageTag: bc9a95b8-b8fe-51e1-9198-86af8f71bb8e
+
+	column requisition_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 71b2c2c8-9e88-5674-bef1-ef0dce4b0147
+		summarizeBy: none
+		sourceColumn: requisition_key
+
+	column req_id
+		dataType: string
+		lineageTag: eb74a292-8f90-5bb7-aea2-2017fb1241b8
+		summarizeBy: none
+		sourceColumn: req_id
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3a0dddb5-9558-50aa-9913-cb2916434fa8
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 46ca8cf4-7f0b-5bdc-b6fe-b9162af26121
+		summarizeBy: none
+		sourceColumn: job_key
+
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6115fd73-ed15-5725-a24e-a1233cbc1dd7
+		summarizeBy: none
+		sourceColumn: location_key
+
+	column channel_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 69f0c38e-39bd-542a-a3fd-4b464cfeb3a3
+		summarizeBy: none
+		sourceColumn: channel_key
+
+	column open_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: e1456776-c508-58ff-8db1-d74d50535cf6
+		summarizeBy: none
+		sourceColumn: open_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column screen_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 271fc0d6-349d-51b9-83ba-d5240a9a122e
+		summarizeBy: none
+		sourceColumn: screen_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column offer_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 2fc515ed-45ae-5518-a9cf-d04cf38df621
+		summarizeBy: none
+		sourceColumn: offer_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column accept_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 00be3567-6413-58bb-98a0-bc627ae28b90
+		summarizeBy: none
+		sourceColumn: accept_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column start_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 6ad7d824-ac57-5b2b-93d6-cad95b78aedb
+		summarizeBy: none
+		sourceColumn: start_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column closed_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 309a01a3-9809-53c5-aac3-6ba479ff0508
+		summarizeBy: none
+		sourceColumn: closed_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column status
+		dataType: string
+		lineageTag: 2118154d-3c85-55dc-8401-9ce17d40e9de
+		summarizeBy: none
+		sourceColumn: status
+
+	column fill_type
+		dataType: string
+		lineageTag: 74b5eeb3-528f-5303-9929-f6a6702eae37
+		summarizeBy: none
+		sourceColumn: fill_type
+
+	column hired_emp_id
+		dataType: string
+		lineageTag: c3b65fbc-8e9f-5d15-a996-5868bfbc06a6
+		summarizeBy: none
+		sourceColumn: hired_emp_id
+
+	column hired_employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 261af2c6-d509-5eae-a168-5635cde2ca1c
+		summarizeBy: none
+		sourceColumn: hired_employee_key
+
+	column days_to_fill
+		dataType: int64
+		formatString: 0
+		lineageTag: 49b47ff2-6a44-591d-8c32-428395c293e3
+		summarizeBy: none
+		sourceColumn: days_to_fill
+
+	column days_to_start
+		dataType: int64
+		formatString: 0
+		lineageTag: cbbe0968-9307-55d0-87d3-6529bb806e9e
+		summarizeBy: none
+		sourceColumn: days_to_start
+
+	column external_cost_usd
+		dataType: double
+		lineageTag: 5783b47a-e7a4-56ae-accf-f558beabbf34
+		summarizeBy: none
+		sourceColumn: external_cost_usd
+
+	column recruiter_hours
+		dataType: double
+		lineageTag: f672482d-e813-5492-8a14-667e124a86bb
+		summarizeBy: none
+		sourceColumn: recruiter_hours
+
+	column internal_cost_usd
+		dataType: double
+		lineageTag: 07ecbdb0-fb7d-5529-84a2-c23275bbdbe5
+		summarizeBy: none
+		sourceColumn: internal_cost_usd
+
+	column total_cost_usd
+		dataType: double
+		lineageTag: 265366d9-f0d9-5c4b-9dd2-9b8d1b85e6ac
+		summarizeBy: none
+		sourceColumn: total_cost_usd
+
+	column hire_exited_within_12m
+		dataType: boolean
+		lineageTag: 5ee19221-a68f-55dd-8bc5-adcf951ba1c0
+		summarizeBy: none
+		sourceColumn: hire_exited_within_12m
+
+	column is_filled
+		dataType: boolean
+		lineageTag: 75a20048-ee70-5836-801a-220b7c884ae6
+		summarizeBy: none
+		sourceColumn: is_filled
+
+	column is_internal_fill
+		dataType: boolean
+		lineageTag: 117df9e9-218b-5e5a-9d74-81e4793e1fec
+		summarizeBy: none
+		sourceColumn: is_internal_fill
+
+	column is_external_hire
+		dataType: boolean
+		lineageTag: f7af96c5-f3eb-50bc-90bf-3f622e880959
+		summarizeBy: none
+		sourceColumn: is_external_hire
+
+	partition Requisition = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "fact_requisition"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

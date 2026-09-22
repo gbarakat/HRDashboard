@@ -1,0 +1,19 @@
+/// Standardised residual (in SD) below which pay is flagged for remediation. What-if parameter.
+table 'Remediation Threshold'
+	lineageTag: a9f067e3-434b-5a3b-b58b-74caae1ab10a
+
+	column 'Remediation Threshold'
+		formatString: 0.00
+		lineageTag: b2b805cd-cfc6-5766-a50b-621656909435
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+	partition 'Remediation Threshold' = calculated
+		mode: import
+		source = GENERATESERIES(0.5, 3, 0.25)
+

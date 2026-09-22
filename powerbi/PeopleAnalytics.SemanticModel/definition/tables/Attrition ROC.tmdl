@@ -1,0 +1,33 @@
+/// Written by ml/attrition.py: ROC curve on the held-out 30%.
+table 'Attrition ROC'
+	lineageTag: e308fb39-4282-5f9b-af2f-12ea3b9af48f
+
+	column fpr
+		dataType: double
+		lineageTag: a92ffd5e-3a70-5c93-8e41-10c4cd42277b
+		summarizeBy: none
+		sourceColumn: fpr
+
+	column tpr
+		dataType: double
+		lineageTag: 6515cd50-56ec-5799-9e47-6f5a052f6bf5
+		summarizeBy: none
+		sourceColumn: tpr
+
+	column threshold
+		dataType: double
+		lineageTag: 7f9b74f6-bf80-5b9a-aa14-8e8c643989be
+		summarizeBy: none
+		sourceColumn: threshold
+
+	partition 'Attrition ROC' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "ml", Item = "attrition_roc"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

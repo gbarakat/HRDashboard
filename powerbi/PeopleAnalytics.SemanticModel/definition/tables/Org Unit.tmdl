@@ -1,0 +1,114 @@
+/// Flattened org hierarchy division > department > section > team, effective-dated for the 2023 re-org.
+table 'Org Unit'
+	lineageTag: 8264e735-9991-5781-9fa2-dbb949f8e166
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 111d56f9-e49a-5c6b-ade0-694cb80f9899
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column team_code
+		dataType: string
+		lineageTag: 74d4880c-90c4-511d-9b82-395ae350a999
+		summarizeBy: none
+		sourceColumn: team_code
+
+	column team_name
+		dataType: string
+		lineageTag: c84acb3d-bd47-578e-8e35-eaa3721d97e5
+		summarizeBy: none
+		sourceColumn: team_name
+
+	column section
+		dataType: string
+		lineageTag: 7369021b-ef3b-50a7-8953-6861d0005312
+		summarizeBy: none
+		sourceColumn: section
+
+	column department
+		dataType: string
+		lineageTag: fa2c2267-355e-5353-98be-4a7d80064f16
+		summarizeBy: none
+		sourceColumn: department
+
+	column division
+		dataType: string
+		lineageTag: d77a80a0-2489-5c3b-b74a-029d84cfc0eb
+		summarizeBy: none
+		sourceColumn: division
+
+	column station_code
+		dataType: string
+		lineageTag: 2fbf7bad-1e28-5e37-966c-b0bffa8cf8f6
+		summarizeBy: none
+		sourceColumn: station_code
+
+	column current_division
+		dataType: string
+		lineageTag: fec16559-bf4a-5ddd-8d45-eaa14793397d
+		summarizeBy: none
+		sourceColumn: current_division
+
+	column current_department
+		dataType: string
+		lineageTag: 0a42038e-c73f-564f-867c-721f08994860
+		summarizeBy: none
+		sourceColumn: current_department
+
+	column valid_from
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 02897830-5174-5124-816d-19d47104fd4d
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column valid_to
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 6f67071b-c8e9-5512-b0f4-8ddc799cb2b8
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column is_current
+		dataType: boolean
+		lineageTag: 8716482d-d708-59b3-a0c4-d27dae82b616
+		summarizeBy: none
+		sourceColumn: is_current
+
+	hierarchy 'Org Hierarchy'
+		lineageTag: 4240b705-7af9-5037-8a92-215407708a75
+
+		level Division
+			lineageTag: 5be7d392-fdd3-53ef-a423-cfa72bcc963e
+			column: division
+
+		level Department
+			lineageTag: 38d41181-f8d6-528f-b99b-b18d5264ed61
+			column: department
+
+		level Section
+			lineageTag: e095b7b6-8200-560b-970d-222ca01d2f47
+			column: section
+
+		level Team
+			lineageTag: 2e979450-ff4f-5dc2-ac08-f3164a125afb
+			column: team_name
+
+	partition 'Org Unit' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "dim_org_unit"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

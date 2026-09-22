@@ -1,0 +1,156 @@
+/// One row per exit with tenure and profile at exit.
+table Separation
+	lineageTag: 5138fcff-9b87-55d2-971f-59ad8ac3e55d
+
+	column separation_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b3e7f46e-7680-5791-8e79-ed0727ac9806
+		summarizeBy: none
+		sourceColumn: separation_key
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9c788591-532f-5625-bd8b-fbc536813b0f
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		isHidden
+		lineageTag: 17c4ca7c-11f0-57dd-9ff3-d290a5497ffb
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column exit_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 72e25c9b-232b-5f38-92d2-4936145f9ffc
+		summarizeBy: none
+		sourceColumn: exit_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column notice_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 5b49a178-9ee9-54da-b18e-a369f405c972
+		summarizeBy: none
+		sourceColumn: notice_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column hire_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 1fce478b-17f7-5719-a948-9f3ed514e8a3
+		summarizeBy: none
+		sourceColumn: hire_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column exit_type
+		dataType: string
+		lineageTag: c4ea1fec-9d7c-519d-b0ed-35817e485eec
+		summarizeBy: none
+		sourceColumn: exit_type
+
+	column is_regretted
+		dataType: boolean
+		lineageTag: 2163d238-b546-5594-9525-e83e9a849d54
+		summarizeBy: none
+		sourceColumn: is_regretted
+
+	column is_voluntary_exit
+		dataType: boolean
+		lineageTag: 139ddc2b-256b-5899-8108-151021231a0a
+		summarizeBy: none
+		sourceColumn: is_voluntary_exit
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3803ff04-fa45-54b4-ac0c-0459e5a4be4f
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 996c41d7-54af-50fd-a674-3580db878c9d
+		summarizeBy: none
+		sourceColumn: job_key
+
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c5102dc8-f4a4-5125-baea-ede546a1953a
+		summarizeBy: none
+		sourceColumn: location_key
+
+	column tenure_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 5774cb6a-1424-5ee1-8aef-52bde75417d0
+		summarizeBy: none
+		sourceColumn: tenure_days
+
+	column tenure_months
+		dataType: int64
+		formatString: 0
+		lineageTag: e891c0c6-e712-5fad-8a4c-d76aa7b1d259
+		summarizeBy: none
+		sourceColumn: tenure_months
+
+	column tenure_band
+		dataType: string
+		lineageTag: 6be2ef07-18f5-53ba-b2fa-7687816eae2c
+		summarizeBy: none
+		sourceColumn: tenure_band
+		sortByColumn: tenure_band_sort
+
+	column tenure_band_sort
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a5c28fbc-643d-5fa2-a1c5-a32e982d1d01
+		summarizeBy: none
+		sourceColumn: tenure_band_sort
+
+	column is_first_year_exit
+		dataType: boolean
+		lineageTag: 07d13727-1b84-588c-a8bf-c1262fae7716
+		summarizeBy: none
+		sourceColumn: is_first_year_exit
+
+	column age_at_exit
+		dataType: int64
+		formatString: 0
+		lineageTag: 2780e412-8631-5b04-a08e-4926e6889c5c
+		summarizeBy: none
+		sourceColumn: age_at_exit
+
+	column last_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 3ba1307c-97c1-563b-af40-3745e7b2ee98
+		summarizeBy: none
+		sourceColumn: last_rating
+
+	partition Separation = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "fact_separation"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

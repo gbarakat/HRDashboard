@@ -1,0 +1,220 @@
+relationship 3741aee1-ff77-597e-b907-5befbcd7103f
+	fromColumn: Headcount.month_end
+	toColumn: Date.date
+
+relationship 393550d7-0604-5622-a49f-b43227150552
+	fromColumn: Headcount.employee_key
+	toColumn: Employee.employee_key
+
+relationship 44b3b531-27b5-5a72-a08b-bf53248a47db
+	fromColumn: Headcount.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship 0abd96a0-f559-51fc-9640-656ac81ca8c2
+	fromColumn: Headcount.job_key
+	toColumn: Job.job_key
+
+relationship afdc1b76-8c9b-5d57-8f2c-90313ae95722
+	fromColumn: Headcount.location_key
+	toColumn: Location.location_key
+
+relationship a26e51c5-ae52-51c4-8cc4-0ca30eb86b83
+	fromColumn: 'Employee Event'.event_date
+	toColumn: Date.date
+
+relationship 2098dfcf-3c07-5e12-b45b-8c233d561279
+	isActive: false
+	fromColumn: 'Employee Event'.notice_date
+	toColumn: Date.date
+
+relationship 2c38f0de-5a0f-520b-8841-03fc6cb33b06
+	fromColumn: 'Employee Event'.employee_key
+	toColumn: Employee.employee_key
+
+relationship e9766f50-2679-5f42-9e80-fa4c20910f81
+	fromColumn: 'Employee Event'.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship 029106a8-823b-5266-b49c-a493d7b47092
+	fromColumn: 'Employee Event'.job_key
+	toColumn: Job.job_key
+
+relationship a6698650-2aaa-5c6d-88fc-36b25594fb07
+	fromColumn: 'Employee Event'.location_key
+	toColumn: Location.location_key
+
+relationship 4fabbb32-5d4c-51d4-887a-55c4bc57bef5
+	fromColumn: Separation.exit_date
+	toColumn: Date.date
+
+relationship 795ba551-e05e-548d-8eca-a57fd0c9dde0
+	isActive: false
+	fromColumn: Separation.hire_date
+	toColumn: Date.date
+
+relationship 0d74a282-decd-5bcb-9428-db52f2203604
+	fromColumn: Separation.employee_key
+	toColumn: Employee.employee_key
+
+relationship 017e92e3-8cac-5a6e-941f-02625c4fb98b
+	fromColumn: Separation.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship 0d4e4101-40de-50e3-99a4-4c72d1362b7b
+	fromColumn: Separation.job_key
+	toColumn: Job.job_key
+
+relationship 4ff4b158-de13-5e83-9f8b-8dc618f5508b
+	fromColumn: Separation.location_key
+	toColumn: Location.location_key
+
+relationship ef3b9614-ce63-5452-bbfe-45042e058485
+	fromColumn: Compensation.pay_review_date
+	toColumn: Date.date
+
+relationship 4e61dfb0-1966-597c-b006-b313d1dd2983
+	fromColumn: Compensation.employee_key
+	toColumn: Employee.employee_key
+
+relationship 23e3184d-e8c8-5525-ac1b-291180d74f69
+	fromColumn: Compensation.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship fd9936eb-c5d7-548f-819b-8e0944012723
+	fromColumn: Compensation.job_key
+	toColumn: Job.job_key
+
+relationship a2215746-3f1d-5a0d-8769-258ddf0d8898
+	fromColumn: Compensation.location_key
+	toColumn: Location.location_key
+
+relationship c43b853e-76d0-5159-9032-05aa1680c529
+	fromColumn: Requisition.open_date
+	toColumn: Date.date
+
+relationship cc16c3da-f360-5b6c-97d0-ee7e3edce70e
+	isActive: false
+	fromColumn: Requisition.accept_date
+	toColumn: Date.date
+
+relationship 1147f65e-bbe4-5855-94d1-0f2d93d0ff45
+	isActive: false
+	fromColumn: Requisition.start_date
+	toColumn: Date.date
+
+relationship f26dd439-f23f-57cc-8d73-58710f9b41b9
+	fromColumn: Requisition.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship 12a83819-bc5a-5c25-937f-7ecf4b2999d5
+	fromColumn: Requisition.job_key
+	toColumn: Job.job_key
+
+relationship 59387f90-b183-5140-ae80-e798eee74c10
+	fromColumn: Requisition.location_key
+	toColumn: Location.location_key
+
+relationship 6189f36f-0755-5982-bdd7-4e639aaaf4cc
+	fromColumn: Requisition.channel_key
+	toColumn: Channel.channel_key
+
+relationship 60a1277a-6c56-5aed-a07c-4e1bc3aeab48
+	fromColumn: Application.applied_date
+	toColumn: Date.date
+
+relationship 6c4ecea0-03c2-5192-9a0e-92674dd59dda
+	fromColumn: Application.channel_key
+	toColumn: Channel.channel_key
+
+relationship e3d20546-bef2-5e18-852a-c7fc4b1becdf
+	fromColumn: Application.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship 96581855-2de5-5b15-92af-5501f32499a2
+	fromColumn: Application.job_key
+	toColumn: Job.job_key
+
+relationship 26438912-047c-5380-8379-ade8679f1e5b
+	fromColumn: Application.location_key
+	toColumn: Location.location_key
+
+relationship c91bd96d-bafb-557a-a628-a8f5813c2c3a
+	fromColumn: Performance.review_date
+	toColumn: Date.date
+
+relationship e1c4f57c-1b7a-50b1-864d-04dc92ca195e
+	fromColumn: Performance.employee_key
+	toColumn: Employee.employee_key
+
+relationship 1f6c3f8d-d6c7-5068-936a-25bdaac8085f
+	fromColumn: Performance.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship 59c40e18-9207-5d55-b466-d531fb46da3c
+	fromColumn: Performance.job_key
+	toColumn: Job.job_key
+
+relationship 889cf2a1-de0f-5c05-9a71-2c26f1a2f054
+	fromColumn: Performance.location_key
+	toColumn: Location.location_key
+
+relationship d90e41ec-1c96-5b92-8c15-dc2c411514c4
+	fromColumn: Training.completion_date
+	toColumn: Date.date
+
+relationship 1d67c83b-f876-5c39-b3ab-2786f80bfbf2
+	fromColumn: Training.employee_key
+	toColumn: Employee.employee_key
+
+relationship 95190ae6-4f1d-5019-9d1a-888f397e5885
+	fromColumn: Training.program_key
+	toColumn: Program.program_key
+
+relationship c04cd151-4bec-57bf-9f7a-1594bc4030eb
+	fromColumn: Training.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship c3f55557-97b1-53fc-b1f9-c94f612a7bb8
+	fromColumn: Training.job_key
+	toColumn: Job.job_key
+
+relationship 6cc29ea3-4463-5fe1-a0f0-55d7c542b6a0
+	fromColumn: Training.location_key
+	toColumn: Location.location_key
+
+relationship 76cd67af-67ba-52eb-9ba0-8827ee3011b0
+	fromColumn: 'Attrition Score'.snapshot_date
+	toColumn: Date.date
+
+relationship c30b3bf8-d30e-54ca-8d83-3fac17ef5964
+	fromColumn: 'Attrition Score'.employee_key
+	toColumn: Employee.employee_key
+
+relationship fa24f480-3450-57d3-abf8-c0930bc08074
+	fromColumn: 'Attrition Score'.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship ba9b1b9a-1295-57a8-ac15-6dbcffb00e2f
+	fromColumn: 'Pay Residual'.employee_key
+	toColumn: Employee.employee_key
+
+relationship 0fec067d-70a8-5eda-842b-fa53c93f123e
+	fromColumn: 'Pay Residual'.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship 929f13ab-856b-501f-b7c9-f04b14db3009
+	fromColumn: 'Training Segment'.employee_key
+	toColumn: Employee.employee_key
+
+relationship 392d64bd-b04a-5e4f-8325-2136e2965391
+	fromColumn: 'Training Segment'.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+
+relationship 834793af-e391-5e5d-af57-8f560d85c1be
+	fromColumn: 'Headcount Forecast'.month_end
+	toColumn: Date.date
+
+relationship c25aeb05-22e9-51fc-b153-5941baa654af
+	fromColumn: 'Headcount Forecast'.org_unit_key
+	toColumn: 'Org Unit'.org_unit_key
+

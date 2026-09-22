@@ -1,0 +1,19 @@
+/// Probability cutoff for flagging an employee as at risk. What-if parameter.
+table Cutoff
+	lineageTag: 87586a5f-8611-588e-83e8-97fa04ea066b
+
+	column Cutoff
+		formatString: 0%
+		lineageTag: c179ac6b-dc6a-5004-b24c-b7eab00d917d
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+	partition Cutoff = calculated
+		mode: import
+		source = GENERATESERIES(0.05, 0.60, 0.01)
+

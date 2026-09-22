@@ -1,0 +1,99 @@
+/// Written by ml/learner_segments.py: k-means learner segment per active employee.
+table 'Training Segment'
+	lineageTag: e3dcda2b-edad-5858-b67d-23fc5a69a684
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 13ac8569-ea2f-5522-bf4c-812902c94551
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		lineageTag: 0c57679d-e801-5f6f-b1f8-cf36f597c84c
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 93293fe0-2f42-52bf-ae58-10fec20abfab
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column segment
+		dataType: int64
+		formatString: 0
+		lineageTag: 6ffd7645-5816-567d-a1c2-70ba18bdfb98
+		summarizeBy: none
+		sourceColumn: segment
+
+	column segment_label
+		dataType: string
+		lineageTag: ae2fe92e-03df-50a1-a62e-841928857334
+		summarizeBy: none
+		sourceColumn: segment_label
+
+	column total_hours
+		dataType: double
+		lineageTag: f1949065-68a5-5a44-89c1-68c38c62834e
+		summarizeBy: none
+		sourceColumn: total_hours
+
+	column elective_courses
+		dataType: int64
+		formatString: 0
+		lineageTag: f82f7e67-e2f6-5cf2-9ea3-9c368b25eb23
+		summarizeBy: none
+		sourceColumn: elective_courses
+
+	column elective_technical_hours
+		dataType: double
+		lineageTag: 79f5fa5c-3c82-52f3-9e4d-0aec1ab28a3b
+		summarizeBy: none
+		sourceColumn: elective_technical_hours
+
+	column elective_leadership_hours
+		dataType: double
+		lineageTag: cac8be4a-6501-584e-9e0d-3ac1826f2bfb
+		summarizeBy: none
+		sourceColumn: elective_leadership_hours
+
+	column elective_digital_hours
+		dataType: double
+		lineageTag: 92152194-e239-5e4e-9561-b091e8914bc9
+		summarizeBy: none
+		sourceColumn: elective_digital_hours
+
+	column elective_customer_hours
+		dataType: double
+		lineageTag: 8b9de259-7e29-5f79-a990-ce729400d2d3
+		summarizeBy: none
+		sourceColumn: elective_customer_hours
+
+	column elective_safety_hours
+		dataType: double
+		lineageTag: 100acfdb-3d70-57a8-9efa-614c833971ff
+		summarizeBy: none
+		sourceColumn: elective_safety_hours
+
+	column silhouette
+		dataType: double
+		lineageTag: 2e62de12-d4fc-5980-a86e-59cf0aca4e0c
+		summarizeBy: none
+		sourceColumn: silhouette
+
+	partition 'Training Segment' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "ml", Item = "training_segments"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

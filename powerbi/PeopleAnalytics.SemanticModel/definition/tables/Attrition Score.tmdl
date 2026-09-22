@@ -1,0 +1,107 @@
+/// Written by ml/attrition.py: probability of voluntary exit within 12 months per employee snapshot.
+table 'Attrition Score'
+	lineageTag: 5b09f84c-2e7e-5315-8af0-45ca70f9f996
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8c88fa23-ef17-5965-bc69-624a3aa02329
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		lineageTag: 73abc162-a449-5db3-b30f-319a6dbbc688
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bf1fc797-d87a-57b2-9e54-60b8efa9a1d0
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column snapshot_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: b94b0f5d-d6fb-5513-ad83-75cde26e8557
+		summarizeBy: none
+		sourceColumn: snapshot_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column p_leave
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 8e672317-7bb8-55c0-be73-77949d3c2f84
+		summarizeBy: none
+		sourceColumn: p_leave
+
+	column decile
+		dataType: int64
+		formatString: 0
+		lineageTag: 8a92482c-2247-56e8-a64a-2e984ae8493a
+		summarizeBy: none
+		sourceColumn: decile
+
+	column split
+		dataType: string
+		lineageTag: 9165ebc5-1556-5a21-a0e9-27971ad84b38
+		summarizeBy: none
+		sourceColumn: split
+
+	column left_within_12m
+		dataType: double
+		lineageTag: 33c8bb01-eabd-5d01-8352-01a422981e97
+		summarizeBy: none
+		sourceColumn: left_within_12m
+
+	column commute_over_30km
+		dataType: int64
+		formatString: 0
+		lineageTag: 864bc357-ef49-56e7-ab36-620c90ab871a
+		summarizeBy: none
+		sourceColumn: commute_over_30km
+
+	column training_over_20h
+		dataType: int64
+		formatString: 0
+		lineageTag: 082dd63b-2296-51f6-88c9-380c5e78c3ab
+		summarizeBy: none
+		sourceColumn: training_over_20h
+
+	column tenure_band
+		dataType: string
+		lineageTag: 1f6764e6-fc6b-54e0-a67d-3a6bdfaa10f5
+		summarizeBy: none
+		sourceColumn: tenure_band
+		sortByColumn: tenure_band_sort
+
+	column tenure_band_sort
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c152c399-1a58-57c4-a904-8fea98b6a9a7
+		summarizeBy: none
+		sourceColumn: tenure_band_sort
+
+	column rating_band
+		dataType: string
+		lineageTag: 5b964130-32be-5877-aa46-2c8d79806de6
+		summarizeBy: none
+		sourceColumn: rating_band
+
+	partition 'Attrition Score' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "ml", Item = "attrition_scores"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

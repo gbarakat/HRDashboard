@@ -1,0 +1,83 @@
+/// Training courses with category, hours and cost.
+table Program
+	lineageTag: 1725fc0d-314f-5618-83fa-04e4985aa4fb
+
+	column program_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5455485c-d926-5455-a3f2-6cccc3ab009f
+		summarizeBy: none
+		sourceColumn: program_key
+
+	column course_code
+		dataType: string
+		lineageTag: 11820a64-1220-5b62-a448-1422990586dd
+		summarizeBy: none
+		sourceColumn: course_code
+
+	column course_title
+		dataType: string
+		lineageTag: 1975415e-03b6-5331-9e9f-b905a8acdbe6
+		summarizeBy: none
+		sourceColumn: course_title
+
+	column category
+		dataType: string
+		lineageTag: 709f60f9-68d0-5126-930f-7170ed320953
+		summarizeBy: none
+		sourceColumn: category
+
+	column hours
+		dataType: double
+		lineageTag: d4df5f4b-6a0d-557a-8699-6c372a0acfe9
+		summarizeBy: none
+		sourceColumn: hours
+
+	column cost_usd
+		dataType: double
+		lineageTag: bdf4ded2-7763-5479-84da-f27cecfc467b
+		summarizeBy: none
+		sourceColumn: cost_usd
+
+	column is_mandatory
+		dataType: boolean
+		lineageTag: f6acceac-a607-59cf-ac52-fe63029c2b5c
+		summarizeBy: none
+		sourceColumn: is_mandatory
+
+	column is_onboarding
+		dataType: boolean
+		lineageTag: 8a129975-604e-5ac1-8be4-12ca94793aa2
+		summarizeBy: none
+		sourceColumn: is_onboarding
+
+	column program_type
+		dataType: string
+		lineageTag: f2e09455-21ed-502c-ab98-47a318f006ad
+		summarizeBy: none
+		sourceColumn: program_type
+
+	column mandatory_for
+		dataType: string
+		lineageTag: 4a3f2af1-3bb3-5b02-ab82-07168d8bf12f
+		summarizeBy: none
+		sourceColumn: mandatory_for
+
+	column delivery_mode
+		dataType: string
+		lineageTag: 48909c95-c5f2-5b41-bb8e-2a3294dce4b5
+		summarizeBy: none
+		sourceColumn: delivery_mode
+
+	partition Program = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "dim_program"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

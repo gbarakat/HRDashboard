@@ -1,0 +1,164 @@
+/// Grain: employee x annual pay review date (1 April) with pay band.
+table Compensation
+	lineageTag: e37ee000-31d6-5dcd-8537-8bd21f899dff
+
+	column compensation_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e20347f1-d375-5522-b567-c3cabbbd0032
+		summarizeBy: none
+		sourceColumn: compensation_key
+
+	column pay_record_id
+		dataType: string
+		isHidden
+		lineageTag: 65e3d877-9c92-5dde-b9fe-82c27ab0d4f5
+		summarizeBy: none
+		sourceColumn: pay_record_id
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7ee463b7-8800-588f-ab13-f61ecb2846dc
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		isHidden
+		lineageTag: 2fdc75bb-0b8b-5c3b-8f6f-88f752073f1d
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column pay_review_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 69717e07-837a-5439-a414-d4ec64486d18
+		summarizeBy: none
+		sourceColumn: pay_review_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column review_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 19348cd9-98f4-5889-9e28-05595b24a28e
+		summarizeBy: none
+		sourceColumn: review_year
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1d84f3b5-1f25-5034-bfed-f9077f330397
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: aac28348-bb5e-59b9-8c50-a5527d5ef916
+		summarizeBy: none
+		sourceColumn: job_key
+
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3fc58a19-ddb8-57c8-be2e-16fcf0f1bc50
+		summarizeBy: none
+		sourceColumn: location_key
+
+	column grade
+		dataType: string
+		lineageTag: 1a52195e-ec7b-5f5c-b26d-67a3bf762d92
+		summarizeBy: none
+		sourceColumn: grade
+
+	column currency
+		dataType: string
+		lineageTag: 5b80133a-f26a-597f-8df8-3575bc9ad87e
+		summarizeBy: none
+		sourceColumn: currency
+
+	column base_salary
+		dataType: double
+		lineageTag: b9cde756-89c1-5ac7-8a72-eb9f41e6ecd1
+		summarizeBy: none
+		sourceColumn: base_salary
+
+	column housing_allowance
+		dataType: double
+		lineageTag: 9029be7a-1c0b-5485-9c96-9bb78b1a68ea
+		summarizeBy: none
+		sourceColumn: housing_allowance
+
+	column transport_allowance
+		dataType: double
+		lineageTag: 5b340b8c-4c87-5703-9a35-b27eb6c4abff
+		summarizeBy: none
+		sourceColumn: transport_allowance
+
+	column flying_allowance
+		dataType: double
+		lineageTag: 0477ab5f-91bf-50ab-9dd3-1962ce69c7e9
+		summarizeBy: none
+		sourceColumn: flying_allowance
+
+	column allowances
+		dataType: double
+		lineageTag: 870662e0-8e43-5577-bd61-0da417c926a6
+		summarizeBy: none
+		sourceColumn: allowances
+
+	column total_cash
+		dataType: double
+		lineageTag: e855dc24-4e30-5389-ad06-f3e051825b28
+		summarizeBy: none
+		sourceColumn: total_cash
+
+	column band_min
+		dataType: double
+		lineageTag: bc9afd7f-5673-538d-9012-631376414819
+		summarizeBy: none
+		sourceColumn: band_min
+
+	column band_mid
+		dataType: double
+		lineageTag: 449c9ee8-cc6d-5a07-afb8-8ad92f15bee8
+		summarizeBy: none
+		sourceColumn: band_mid
+
+	column band_max
+		dataType: double
+		lineageTag: 0cfc7d1a-542a-5bed-b10f-bfd52ad7db6b
+		summarizeBy: none
+		sourceColumn: band_max
+
+	column compa_ratio
+		dataType: double
+		lineageTag: 58290b3e-1fc1-528d-9d44-d0eb3f8a0f2e
+		summarizeBy: none
+		sourceColumn: compa_ratio
+
+	column range_penetration
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 0fa325ee-7e2c-51e6-917e-786a40fa595b
+		summarizeBy: none
+		sourceColumn: range_penetration
+
+	partition Compensation = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "fact_compensation"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

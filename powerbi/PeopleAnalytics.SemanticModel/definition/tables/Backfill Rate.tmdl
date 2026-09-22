@@ -1,0 +1,19 @@
+/// Share of internal moves whose vacated role is backfilled externally. What-if parameter.
+table 'Backfill Rate'
+	lineageTag: 20013590-4c76-57bb-98f3-0b6b02e6300c
+
+	column 'Backfill Rate'
+		formatString: 0%
+		lineageTag: 3da28b5d-c170-5029-b06e-498941ab251c
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+	partition 'Backfill Rate' = calculated
+		mode: import
+		source = GENERATESERIES(0, 1, 0.05)
+

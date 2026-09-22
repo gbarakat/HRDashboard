@@ -22,6 +22,7 @@ select
     x.event_date - e.hire_date                                       as tenure_days,
     {{ months_between('e.hire_date', 'x.event_date') }}              as tenure_months,
     {{ tenure_band('x.event_date - e.hire_date') }}                  as tenure_band,
+    {{ tenure_band_sort('x.event_date - e.hire_date') }}             as tenure_band_sort,
     {{ months_between('e.hire_date', 'x.event_date') }} < 12         as is_first_year_exit,
     {{ years_between('e.birth_date', 'x.event_date') }}              as age_at_exit,
     last_review.rating                                               as last_rating

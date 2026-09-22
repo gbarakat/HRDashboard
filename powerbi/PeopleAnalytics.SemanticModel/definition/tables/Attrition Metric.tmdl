@@ -1,0 +1,27 @@
+/// Written by ml/attrition.py: model quality metrics.
+table 'Attrition Metric'
+	lineageTag: 03b5ae0c-ca8b-52db-8515-16b93af61ccf
+
+	column metric
+		dataType: string
+		lineageTag: 7b0d00ae-0a29-50ae-8a9c-321bcf5db6dd
+		summarizeBy: none
+		sourceColumn: metric
+
+	column value
+		dataType: double
+		lineageTag: fc21864c-e7ff-555d-ad64-b65856f19074
+		summarizeBy: none
+		sourceColumn: value
+
+	partition 'Attrition Metric' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "ml", Item = "attrition_metrics"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,19 @@
+/// Assumed cost of one unwanted voluntary leaver (USD). What-if parameter.
+table 'Leaver Cost'
+	lineageTag: 96b1c240-2ebb-50d8-b3ff-195db258c239
+
+	column 'Leaver Cost'
+		formatString: \$#,0
+		lineageTag: 939defed-e92c-5d15-8934-38f68f3301cd
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+	partition 'Leaver Cost' = calculated
+		mode: import
+		source = GENERATESERIES(10000, 100000, 5000)
+

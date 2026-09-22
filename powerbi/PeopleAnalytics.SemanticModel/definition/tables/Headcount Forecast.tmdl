@@ -1,0 +1,90 @@
+/// Written by ml/forecast.py: 24-month forecast and 2024-25 backtest by team.
+table 'Headcount Forecast'
+	lineageTag: 242614f1-7010-5d66-8e5f-92530fc8803e
+
+	column month_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 84a2d762-6234-5f00-a5d1-330bceccb8c0
+		summarizeBy: none
+		sourceColumn: month_end
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a075a35c-bc42-5ede-a135-9d74a7c5db9c
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column team_code
+		dataType: string
+		lineageTag: 93affc52-823a-57d0-9ac6-5b487e8e96dc
+		summarizeBy: none
+		sourceColumn: team_code
+
+	column row_type
+		dataType: string
+		lineageTag: 02164e93-91cf-57f9-b599-e687e05514e6
+		summarizeBy: none
+		sourceColumn: row_type
+
+	column origin_month
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 27f266d1-507d-5e38-8c60-5328610a7bb7
+		summarizeBy: none
+		sourceColumn: origin_month
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column horizon_months
+		dataType: int64
+		formatString: 0
+		lineageTag: e51e7d62-3e47-5589-a72c-ebe6fcb8d25c
+		summarizeBy: none
+		sourceColumn: horizon_months
+
+	column forecast
+		dataType: double
+		lineageTag: f36c7a63-73e3-55f5-9df3-6787eac23a87
+		summarizeBy: none
+		sourceColumn: forecast
+
+	column lo80
+		dataType: double
+		lineageTag: 75acb683-05ce-5729-8b05-3099d57b11ce
+		summarizeBy: none
+		sourceColumn: lo80
+
+	column hi80
+		dataType: double
+		lineageTag: 3e1daf73-a45b-5a67-a359-d3b8b7b646ec
+		summarizeBy: none
+		sourceColumn: hi80
+
+	column backtest_mape
+		dataType: double
+		lineageTag: d2b5d670-0134-5f87-88c4-834887dc3e24
+		summarizeBy: none
+		sourceColumn: backtest_mape
+
+	column backtest_mape_company
+		dataType: double
+		lineageTag: 170425c6-af75-5a31-9d03-762e88eb2ba1
+		summarizeBy: none
+		sourceColumn: backtest_mape_company
+
+	partition 'Headcount Forecast' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "ml", Item = "headcount_forecast"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

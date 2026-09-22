@@ -1,0 +1,27 @@
+/// RLS mapping user_email -> division for the HRBP role.
+table 'Security HRBP'
+	lineageTag: ae6955f1-5424-5f4d-b224-d22a194199d5
+
+	column user_email
+		dataType: string
+		lineageTag: 653049bb-91ab-5bf2-a4af-e8a94d3dd758
+		summarizeBy: none
+		sourceColumn: user_email
+
+	column division
+		dataType: string
+		lineageTag: 2c724562-2ce1-534d-838d-05beda5792a7
+		summarizeBy: none
+		sourceColumn: division
+
+	partition 'Security HRBP' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "security_hrbp"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

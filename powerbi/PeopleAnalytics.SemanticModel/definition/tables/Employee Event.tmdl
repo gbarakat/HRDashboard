@@ -1,0 +1,163 @@
+/// One row per hire, exit, move or promotion (2018-2025).
+table 'Employee Event'
+	lineageTag: 1ab0e258-390c-526f-be77-894a3f639313
+
+	column event_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f8a86fd5-102f-592e-a30d-b8a7383891d0
+		summarizeBy: none
+		sourceColumn: event_key
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5ebb367a-16cf-51d4-a57d-3264dfb5f3fb
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		isHidden
+		lineageTag: 73a51ba3-ece5-5d06-85c7-6a655421b439
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column event_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: dcf3d013-c641-5d94-b509-668fe2051bbd
+		summarizeBy: none
+		sourceColumn: event_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column notice_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 39f82184-2c0e-583b-871b-f3bb20a2805d
+		summarizeBy: none
+		sourceColumn: notice_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column event_type
+		dataType: string
+		lineageTag: e4389034-1409-52c2-9e20-d20244e23975
+		summarizeBy: none
+		sourceColumn: event_type
+
+	column move_type
+		dataType: string
+		lineageTag: 6aa46d7a-cc08-5a3c-9a61-a2479436129d
+		summarizeBy: none
+		sourceColumn: move_type
+
+	column exit_type
+		dataType: string
+		lineageTag: 7ee818c1-d016-5b7e-8591-5b34869ca5fc
+		summarizeBy: none
+		sourceColumn: exit_type
+
+	column is_regretted
+		dataType: boolean
+		lineageTag: bba9e3cb-ce4a-5cc2-b89f-8c6a56f2f6b8
+		summarizeBy: none
+		sourceColumn: is_regretted
+
+	column requisition_ref
+		dataType: string
+		lineageTag: 5e16e5c0-1d81-5fb0-a744-dbd6a5b2061f
+		summarizeBy: none
+		sourceColumn: requisition_ref
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d618bea3-ec1e-5945-86c9-7e7131e3fd0d
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column from_org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 387dac98-9f6a-518d-b26f-6ada8e6eb55a
+		summarizeBy: none
+		sourceColumn: from_org_unit_key
+
+	column job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 33ba6c7b-e855-5052-bced-0a048037e2bf
+		summarizeBy: none
+		sourceColumn: job_key
+
+	column from_job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c5a59ecd-2056-5e24-910b-013cf4765186
+		summarizeBy: none
+		sourceColumn: from_job_key
+
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ec8e4a45-30cf-53c6-b6d3-d74addb0c344
+		summarizeBy: none
+		sourceColumn: location_key
+
+	column grade_change
+		dataType: int64
+		formatString: 0
+		lineageTag: faa1faa0-1604-5e5e-9497-b79a5be08ce0
+		summarizeBy: none
+		sourceColumn: grade_change
+
+	column is_hire
+		dataType: boolean
+		lineageTag: 0eafeb4b-a57c-5463-be63-665deaba0d10
+		summarizeBy: none
+		sourceColumn: is_hire
+
+	column is_exit
+		dataType: boolean
+		lineageTag: bc4b0867-898d-5414-b67f-6a70c8b5a355
+		summarizeBy: none
+		sourceColumn: is_exit
+
+	column is_promotion
+		dataType: boolean
+		lineageTag: 0f2c3b7f-be43-59df-8b51-294b21a8766b
+		summarizeBy: none
+		sourceColumn: is_promotion
+
+	column is_internal_mobility
+		dataType: boolean
+		lineageTag: b98eeaad-bb1d-5e1d-9bda-d0e81de82e43
+		summarizeBy: none
+		sourceColumn: is_internal_mobility
+
+	column is_voluntary_exit
+		dataType: boolean
+		lineageTag: 99d72268-f7ea-5f46-af80-9d5728cd01b8
+		summarizeBy: none
+		sourceColumn: is_voluntary_exit
+
+	partition 'Employee Event' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "fact_employee_event"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

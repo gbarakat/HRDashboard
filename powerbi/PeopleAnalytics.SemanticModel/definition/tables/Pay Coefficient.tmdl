@@ -1,0 +1,84 @@
+/// Written by ml/pay_equity.py: OLS coefficients of three pay models.
+table 'Pay Coefficient'
+	lineageTag: af609b07-04df-5bad-bd14-fb2766242005
+
+	column model
+		dataType: string
+		lineageTag: 14415ca9-8791-5569-8cad-36b715dce538
+		summarizeBy: none
+		sourceColumn: model
+
+	column variable
+		dataType: string
+		lineageTag: 57a0d5a9-be9a-54d2-a6d2-654c3af7add4
+		summarizeBy: none
+		sourceColumn: variable
+
+	column coef
+		dataType: double
+		lineageTag: 3d6ee137-24da-5c73-84a1-4c4f3e695681
+		summarizeBy: none
+		sourceColumn: coef
+
+	column std_err
+		dataType: double
+		lineageTag: ca7f55a7-3b16-5de4-a2b3-19b6c278d2cb
+		summarizeBy: none
+		sourceColumn: std_err
+
+	column p_value
+		dataType: double
+		lineageTag: 255d499f-b6ae-5132-8351-a81a3ff7048f
+		summarizeBy: none
+		sourceColumn: p_value
+
+	column ci_low
+		dataType: double
+		lineageTag: 70eb5040-6697-52f2-98f8-a5705b49bcd6
+		summarizeBy: none
+		sourceColumn: ci_low
+
+	column ci_high
+		dataType: double
+		lineageTag: 873b7039-2cc7-5f7d-b35d-4585e11286ce
+		summarizeBy: none
+		sourceColumn: ci_high
+
+	column pct_effect
+		dataType: double
+		formatString: 0.0%
+		lineageTag: b0b25357-2637-5eef-865a-cac6669290de
+		summarizeBy: none
+		sourceColumn: pct_effect
+
+	column n_obs
+		dataType: int64
+		formatString: 0
+		lineageTag: d3b59f5b-9225-5c29-b350-1beec9317352
+		summarizeBy: none
+		sourceColumn: n_obs
+
+	column r_squared
+		dataType: double
+		lineageTag: ca31e88d-f5e2-5501-9bb4-895f9323adad
+		summarizeBy: none
+		sourceColumn: r_squared
+
+	column review_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 6c1a997f-68b0-53fd-9b48-c2211af282cf
+		summarizeBy: none
+		sourceColumn: review_year
+
+	partition 'Pay Coefficient' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "ml", Item = "pay_coefficients"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

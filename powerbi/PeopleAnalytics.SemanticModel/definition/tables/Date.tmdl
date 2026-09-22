@@ -1,0 +1,203 @@
+/// Calendar 2017-2027 with an April-March fiscal year. Marked as the model date table.
+table Date
+	lineageTag: 05551f7a-e9c6-5992-9984-9e1999f6bfc0
+	dataCategory: Time
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b854b5a1-1011-5907-8a56-46301a429d4a
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column date
+		dataType: dateTime
+		isKey
+		formatString: yyyy-mm-dd
+		lineageTag: c776c522-bba2-54f5-88ec-3d8374971396
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 75cd5ef2-80ad-5aec-8781-417662c0fae5
+		summarizeBy: none
+		sourceColumn: year
+
+	column quarter_no
+		dataType: int64
+		formatString: 0
+		lineageTag: 4a807e9b-0399-5343-8578-98a69cc608dd
+		summarizeBy: none
+		sourceColumn: quarter_no
+
+	column quarter
+		dataType: string
+		lineageTag: ae78dec8-ff50-5cda-a22a-98d7ba26b2a9
+		summarizeBy: none
+		sourceColumn: quarter
+		sortByColumn: quarter_no
+
+	column month_no
+		dataType: int64
+		formatString: 0
+		lineageTag: b59bdf78-53ae-5971-ad5f-b92f0b0914f4
+		summarizeBy: none
+		sourceColumn: month_no
+
+	column month_name
+		dataType: string
+		lineageTag: 3ceaa0ea-4fc8-551c-83cf-16fcabd29a36
+		summarizeBy: none
+		sourceColumn: month_name
+		sortByColumn: month_no
+
+	column month_short
+		dataType: string
+		lineageTag: 35bdb0c0-7051-5760-86ab-bd7bdd1c933b
+		summarizeBy: none
+		sourceColumn: month_short
+		sortByColumn: month_no
+
+	column year_month
+		dataType: string
+		lineageTag: a3f68ed7-01d5-5cc9-ba66-5f88ab227bcc
+		summarizeBy: none
+		sourceColumn: year_month
+		sortByColumn: year_month_no
+
+	column year_month_no
+		dataType: int64
+		formatString: 0
+		lineageTag: 0fb6d9ed-0b9b-5259-81ea-201c0133c126
+		summarizeBy: none
+		sourceColumn: year_month_no
+
+	column month_start
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 3bc4a83d-f665-52ee-82a8-4f53e38d740a
+		summarizeBy: none
+		sourceColumn: month_start
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column month_end
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 15e50d0d-7aef-5adf-8eaa-8ad1a8cd58c2
+		summarizeBy: none
+		sourceColumn: month_end
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column is_month_end
+		dataType: boolean
+		lineageTag: 0e94f399-0988-5162-b110-01530b20bfa0
+		summarizeBy: none
+		sourceColumn: is_month_end
+
+	column day_of_week_no
+		dataType: int64
+		formatString: 0
+		lineageTag: 65156188-ed85-57ab-9580-a00fcf5e019d
+		summarizeBy: none
+		sourceColumn: day_of_week_no
+
+	column day_name
+		dataType: string
+		lineageTag: 7eb14a67-b42b-5fe9-a722-8f131e500ae6
+		summarizeBy: none
+		sourceColumn: day_name
+		sortByColumn: day_of_week_no
+
+	column is_weekend
+		dataType: boolean
+		lineageTag: 0115f718-30c1-5aad-ae62-759d8107573c
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+	column fiscal_year_start
+		dataType: int64
+		formatString: 0
+		lineageTag: b917f60e-3ec9-5cf0-8144-3d4a492fc2d8
+		summarizeBy: none
+		sourceColumn: fiscal_year_start
+
+	column fiscal_year
+		dataType: string
+		lineageTag: 1381b89b-20b1-57f6-8bcf-048df0364b66
+		summarizeBy: none
+		sourceColumn: fiscal_year
+		sortByColumn: fiscal_year_start
+
+	column fiscal_month_no
+		dataType: int64
+		formatString: 0
+		lineageTag: 852bb85f-5c9a-5362-abd8-3f1a0ba75901
+		summarizeBy: none
+		sourceColumn: fiscal_month_no
+
+	column fiscal_quarter
+		dataType: string
+		lineageTag: 33bceecd-ad14-5765-b27d-5c2a588a1a8c
+		summarizeBy: none
+		sourceColumn: fiscal_quarter
+
+	column is_in_reporting_window
+		dataType: boolean
+		lineageTag: 561ae654-d405-5fa0-be81-62ba9eb4907d
+		summarizeBy: none
+		sourceColumn: is_in_reporting_window
+
+	column is_forecast_horizon
+		dataType: boolean
+		lineageTag: 6b776d6f-c162-5ade-86d6-e93dcfde2648
+		summarizeBy: none
+		sourceColumn: is_forecast_horizon
+
+	hierarchy Calendar
+		lineageTag: e889f155-d51a-500f-ac3d-e9f55ec7dc4c
+
+		level Year
+			lineageTag: 9bf4117d-27e4-52d7-ab0a-ed61bc90ee89
+			column: year
+
+		level Quarter
+			lineageTag: 8b600537-ce80-5f83-9d21-b633bbc3d87f
+			column: quarter
+
+		level Month
+			lineageTag: 4bb6d476-3953-5db3-8f9d-a1a50953958d
+			column: month_short
+
+	hierarchy Fiscal
+		lineageTag: f11e231c-1faa-547b-84f6-31bfea99fb66
+
+		level 'Fiscal Year'
+			lineageTag: 1191f52c-8794-5948-9c26-b0085664d186
+			column: fiscal_year
+
+		level 'Fiscal Quarter'
+			lineageTag: 75e7f7a0-a4ef-5ea7-a485-5d21bfbceb55
+			column: fiscal_quarter
+
+		level Month
+			lineageTag: 9bf17e85-61f4-5fa9-b998-ced20ca3f254
+			column: month_short
+
+	partition Date = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "dim_date"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

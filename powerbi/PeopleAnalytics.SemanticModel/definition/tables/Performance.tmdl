@@ -1,0 +1,119 @@
+/// Grain: employee x review year with rating, potential and nine-box cell.
+table Performance
+	lineageTag: f2a632fb-10d9-5c14-909d-2406a4b318a6
+
+	column performance_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 63248b2a-7619-526d-b2ce-cac7bedab8b0
+		summarizeBy: none
+		sourceColumn: performance_key
+
+	column review_id
+		dataType: string
+		isHidden
+		lineageTag: 4b66f8b6-ddb3-511c-bd5d-5c6c51ab609c
+		summarizeBy: none
+		sourceColumn: review_id
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9251d9e3-4505-5d41-a7ba-067098cddc31
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		isHidden
+		lineageTag: f9c6884f-f09c-53f8-ac72-1f9a2cdb0289
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column review_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 7b1157ff-d0f3-5352-919d-550e3c59232a
+		summarizeBy: none
+		sourceColumn: review_year
+
+	column review_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: fbf4c57e-6111-5747-b107-7ed665312cdf
+		summarizeBy: none
+		sourceColumn: review_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c5fae16c-df21-5214-883e-9edfbac33319
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4a691e02-d670-5c55-8380-3644b9e2a3d5
+		summarizeBy: none
+		sourceColumn: job_key
+
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b6bab91b-b066-53a1-8135-742d461fe86d
+		summarizeBy: none
+		sourceColumn: location_key
+
+	column rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 37b7a538-79b3-521d-8aff-66b083762020
+		summarizeBy: none
+		sourceColumn: rating
+
+	column potential
+		dataType: int64
+		formatString: 0
+		lineageTag: 283e95c1-1b47-5983-a739-1ef648f50a41
+		summarizeBy: none
+		sourceColumn: potential
+
+	column performance_band
+		dataType: string
+		lineageTag: 9c3f1ef0-d002-531a-aeb0-ff9960628b14
+		summarizeBy: none
+		sourceColumn: performance_band
+
+	column nine_box_cell
+		dataType: int64
+		formatString: 0
+		lineageTag: 98c01f47-c161-5e3a-9dad-a5e9ea514502
+		summarizeBy: none
+		sourceColumn: nine_box_cell
+
+	column nine_box_label
+		dataType: string
+		lineageTag: d885516e-44fb-5540-8e97-59adcd6ff772
+		summarizeBy: none
+		sourceColumn: nine_box_label
+		sortByColumn: nine_box_cell
+
+	partition Performance = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "fact_performance"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

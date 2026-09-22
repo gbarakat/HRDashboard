@@ -21,8 +21,10 @@ select
     e.hire_date between m.month_start and m.month_end                as is_hired_in_month,
     {{ months_between('e.hire_date', 'm.month_end') }}              as tenure_months,
     {{ tenure_band('m.month_end - e.hire_date') }}                   as tenure_band,
+    {{ tenure_band_sort('m.month_end - e.hire_date') }}              as tenure_band_sort,
     {{ years_between('e.birth_date', 'm.month_end') }}               as age_years,
-    {{ age_band(years_between('e.birth_date', 'm.month_end')) }}     as age_band
+    {{ age_band(years_between('e.birth_date', 'm.month_end')) }}     as age_band,
+    {{ age_band_sort(years_between('e.birth_date', 'm.month_end')) }} as age_band_sort
 from months m
 join emp e
     on m.month_end between e.valid_from and e.valid_to

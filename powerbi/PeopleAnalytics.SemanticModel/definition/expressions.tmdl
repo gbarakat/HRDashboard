@@ -1,0 +1,12 @@
+/// Postgres host:port. Change to point Power BI at another server.
+expression PgServer = "localhost:5432" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 153034ab-49a5-5e9d-a0e5-b6ecda902f4e
+
+	annotation PBI_ResultType = Text
+
+/// Postgres database name.
+expression PgDatabase = "people_analytics" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 09f315d8-fb91-5fbe-9677-7eb0abe32afe
+
+	annotation PBI_ResultType = Text
+

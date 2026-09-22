@@ -1,0 +1,161 @@
+/// SCD Type 2 employee dimension: one row per employee version (hire, promotion, move, re-org).
+table Employee
+	lineageTag: e3415127-9692-5ab0-a3ff-a80488fee38a
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d806e2d8-fdda-5b8e-9e51-c42b15c07ffc
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		lineageTag: 64f19af9-dd0e-5566-8b75-86f6674ddcc3
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column gender
+		dataType: string
+		lineageTag: 2fcf7cd1-b8cf-51d8-b53e-28c7233166ec
+		summarizeBy: none
+		sourceColumn: gender
+
+	column nationality
+		dataType: string
+		lineageTag: 23f7b2fe-b895-53ba-bec2-167fc4aabcf4
+		summarizeBy: none
+		sourceColumn: nationality
+
+	column birth_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 3ef83aa5-cb29-5541-be1d-2a5c48333d4a
+		summarizeBy: none
+		sourceColumn: birth_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column hire_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: ab9bce41-8886-5f1a-8a76-3f10731252ed
+		summarizeBy: none
+		sourceColumn: hire_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column exit_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 0bfae0cf-04cc-51e3-bff7-64af7ff0e66e
+		summarizeBy: none
+		sourceColumn: exit_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column exit_type
+		dataType: string
+		lineageTag: ec83a96d-dc93-5c4c-aea7-128eea06770f
+		summarizeBy: none
+		sourceColumn: exit_type
+
+	column regretted_flag
+		dataType: boolean
+		lineageTag: 576ba14d-d452-5ad2-a102-ad15aeaa7664
+		summarizeBy: none
+		sourceColumn: regretted_flag
+
+	column notice_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 573673d7-d761-534f-aa39-30d72af3060c
+		summarizeBy: none
+		sourceColumn: notice_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column commute_km
+		dataType: double
+		lineageTag: f368e69f-7485-54a1-a3bd-bb279f53c7ff
+		summarizeBy: none
+		sourceColumn: commute_km
+
+	column is_commute_over_30km
+		dataType: boolean
+		lineageTag: 29bd67a4-5d3b-5ef1-8950-0f14a335eb6a
+		summarizeBy: none
+		sourceColumn: is_commute_over_30km
+
+	column fte
+		dataType: double
+		lineageTag: fc1ddee0-6139-5640-86c1-c5c605aa69bd
+		summarizeBy: none
+		sourceColumn: fte
+
+	column team_code
+		dataType: string
+		lineageTag: b0e176b1-7a3b-5949-be61-5053c5035fc3
+		summarizeBy: none
+		sourceColumn: team_code
+
+	column job_code
+		dataType: string
+		lineageTag: d8356aff-ace4-5ec1-9acb-b97c5c308263
+		summarizeBy: none
+		sourceColumn: job_code
+
+	column change_action
+		dataType: string
+		lineageTag: daaa8bd2-dcb7-5a9f-b872-dee2be0e895f
+		summarizeBy: none
+		sourceColumn: change_action
+
+	column change_reason
+		dataType: string
+		lineageTag: 526fc817-84d3-504d-a2f5-8d0b45ac43b6
+		summarizeBy: none
+		sourceColumn: change_reason
+
+	column valid_from
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: ca3cf187-55dc-5c2e-b52c-eb613e4ed722
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column valid_to
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: c626cbdc-33eb-5f59-af7d-283c16c1e75c
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column is_current
+		dataType: boolean
+		lineageTag: 911916d1-4049-5893-aaae-cacace060956
+		summarizeBy: none
+		sourceColumn: is_current
+
+	column is_active
+		dataType: boolean
+		lineageTag: 57b53ac6-4935-5aef-9840-df0c1753e3ed
+		summarizeBy: none
+		sourceColumn: is_active
+
+	partition Employee = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "dim_employee"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

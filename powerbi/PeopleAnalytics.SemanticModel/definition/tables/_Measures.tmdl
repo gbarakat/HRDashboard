@@ -1,0 +1,2037 @@
+/// All measures of the model, grouped by display folder. Descriptions and annotations feed docs/metric_dictionary.md.
+table _Measures
+	lineageTag: cf7d92b0-3cc9-5385-b237-979e84750b66
+
+	/// Employees on the payroll at the last month end in the selected period.
+	measure 'Headcount End' =
+			VAR _monthEnd = MAX ( 'Headcount'[month_end] )
+			RETURN
+			    CALCULATE ( COUNTROWS ( 'Headcount' ), 'Headcount'[month_end] = _monthEnd )
+		formatString: #,0
+		displayFolder: 01 Headcount
+		lineageTag: 2979944c-c2db-5e3c-8372-6668e0fa4c97
+
+		annotation Numerator = core.fact_headcount_monthly rows at the last month_end in context
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Employees on the payroll at the month end before the selected period starts.
+	measure 'Headcount Start' =
+			VAR _previousMonthEnd = EOMONTH ( MIN ( 'Date'[date] ), -1 )
+			RETURN
+			    CALCULATE ( COUNTROWS ( 'Headcount' ), REMOVEFILTERS ( 'Date' ), 'Headcount'[month_end] = _previousMonthEnd )
+		formatString: #,0
+		displayFolder: 01 Headcount
+		lineageTag: 4fef7439-2fe7-5ab7-8c18-7f60f6ca0468
+
+		annotation Numerator = core.fact_headcount_monthly rows at the month_end before the period
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Average of the month-end headcounts inside the selected period (denominator for rates).
+	measure 'Headcount Avg' =
+			AVERAGEX (
+			    FILTER ( VALUES ( 'Date'[date] ), 'Date'[is_month_end] && 'Date'[is_in_reporting_window] ),
+			    CALCULATE ( COUNTROWS ( 'Headcount' ) )
+			)
+		formatString: #,0.0
+		displayFolder: 01 Headcount
+		lineageTag: e9427504-e35b-5bd4-acf9-2c78b827a43e
+
+		annotation Numerator = Sum of month-end headcounts (core.fact_headcount_monthly)
+
+		annotation Denominator = Number of month ends in the period
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Full-time equivalents on the payroll at the last month end in the period.
+	measure 'Headcount FTE End' =
+			VAR _monthEnd = MAX ( 'Headcount'[month_end] )
+			RETURN
+			    CALCULATE ( SUM ( 'Headcount'[fte] ), 'Headcount'[month_end] = _monthEnd )
+		formatString: #,0.0
+		displayFolder: 01 Headcount
+		lineageTag: 107eb117-4aa6-5255-bee1-b4caec31f904
+
+		annotation Numerator = Sum of core.fact_headcount_monthly.fte at the last month_end
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Average of the month-end FTE totals inside the selected period.
+	measure 'FTE Avg' =
+			AVERAGEX (
+			    FILTER ( VALUES ( 'Date'[date] ), 'Date'[is_month_end] && 'Date'[is_in_reporting_window] ),
+			    CALCULATE ( SUM ( 'Headcount'[fte] ) )
+			)
+		formatString: #,0.0
+		displayFolder: 01 Headcount
+		lineageTag: 182c7429-b6ea-562b-a7bc-384a2d5ef2f5
+
+		annotation Numerator = Sum of month-end FTE (core.fact_headcount_monthly.fte)
+
+		annotation Denominator = Number of month ends in the period
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Headcount End minus Headcount Start.
+	measure 'Headcount Change' = [Headcount End] - [Headcount Start]
+		formatString: +#,0;-#,0;0
+		displayFolder: 01 Headcount
+		lineageTag: 9d16c4ad-9072-54ce-9873-4277b7f9e1b9
+
+		annotation Numerator = Headcount End
+
+		annotation Denominator = Headcount Start (subtracted)
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Change in headcount over the period relative to the starting headcount.
+	measure 'Headcount Growth %' = DIVIDE ( [Headcount End] - [Headcount Start], [Headcount Start] )
+		formatString: 0.0%
+		displayFolder: 01 Headcount
+		lineageTag: b3014aae-3c96-5b45-a1f5-e641fee21bbb
+
+		annotation Numerator = Headcount End - Headcount Start
+
+		annotation Denominator = Headcount Start
+
+		annotation Owner = Workforce Planning Lead
+
+	/// External hires with a hire date in the period.
+	measure Hires = CALCULATE ( COUNTROWS ( 'Employee Event' ), 'Employee Event'[event_type] = "Hire" )
+		formatString: #,0
+		displayFolder: 01 Headcount
+		lineageTag: 9780b50d-7f86-5bde-94c8-45198bfab4ce
+
+		annotation Numerator = core.fact_employee_event rows with event_type = Hire
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Distinct employees on the payroll at any month end in the period.
+	measure 'Employees in Period' = DISTINCTCOUNT ( 'Headcount'[emp_id] )
+		formatString: #,0
+		displayFolder: 01 Headcount
+		lineageTag: 8a4db14d-d30a-5249-a6bd-679a305f65ac
+
+		annotation Numerator = Distinct emp_id in core.fact_headcount_monthly
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Share of women in Headcount End.
+	measure 'Female Share of Headcount %' = DIVIDE ( CALCULATE ( [Headcount End], 'Employee'[gender] = "Female" ), [Headcount End] )
+		formatString: 0.0%
+		displayFolder: 01 Headcount
+		lineageTag: ba358b78-c04a-5100-ad38-07ca3214287c
+
+		annotation Numerator = Headcount End where core.dim_employee.gender = Female
+
+		annotation Denominator = Headcount End
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Average years of service of employees on the payroll at the last month end.
+	measure 'Avg Tenure Years' =
+			VAR _monthEnd = MAX ( 'Headcount'[month_end] )
+			RETURN
+			    DIVIDE ( CALCULATE ( AVERAGE ( 'Headcount'[tenure_months] ), 'Headcount'[month_end] = _monthEnd ), 12 )
+		formatString: 0.00
+		displayFolder: 01 Headcount
+		lineageTag: 6da0c5a2-1181-58c7-84a8-e43e81be95ab
+
+		annotation Numerator = Average core.fact_headcount_monthly.tenure_months at the last month_end
+
+		annotation Denominator = 12 months
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Exits of any type (voluntary, involuntary, retirement, transfer) with an exit date in the period.
+	measure Separations = CALCULATE ( COUNTROWS ( 'Employee Event' ), 'Employee Event'[event_type] = "Exit" )
+		formatString: #,0
+		displayFolder: 02 Turnover
+		lineageTag: f84c0a14-bdf7-558a-a172-e416c6207c92
+
+		annotation Numerator = core.fact_employee_event rows with event_type = Exit
+
+		annotation Denominator = n/a
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Resignations (exit_type = Voluntary) with an exit date in the period.
+	measure 'Voluntary Separations' = CALCULATE ( [Separations], 'Employee Event'[exit_type] = "Voluntary" )
+		formatString: #,0
+		displayFolder: 02 Turnover
+		lineageTag: e1aba769-b129-5248-a9f0-fb377eb3a4d4
+
+		annotation Numerator = core.fact_employee_event exits with exit_type = Voluntary
+
+		annotation Denominator = n/a
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Voluntary exits flagged regretted (rating 4-5, potential 3 or critical role).
+	measure 'Regretted Separations' = CALCULATE ( [Separations], 'Employee Event'[is_regretted] = TRUE () )
+		formatString: #,0
+		displayFolder: 02 Turnover
+		lineageTag: 1ee26e89-ab31-5ab1-9e77-667f137a21e5
+
+		annotation Numerator = core.fact_employee_event exits with is_regretted = true
+
+		annotation Denominator = n/a
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Separations divided by average headcount for the selected period (annual when a year is selected).
+	measure 'Turnover %' = DIVIDE ( [Separations], [Headcount Avg] )
+		formatString: 0.0%
+		displayFolder: 02 Turnover
+		lineageTag: e3ff1e95-8616-5f49-ba06-47f0fd9cea21
+
+		annotation Numerator = Separations
+
+		annotation Denominator = Headcount Avg
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Voluntary separations divided by average headcount for the selected period.
+	measure 'Voluntary Turnover %' = DIVIDE ( [Voluntary Separations], [Headcount Avg] )
+		formatString: 0.0%
+		displayFolder: 02 Turnover
+		lineageTag: 8139ad16-9e67-5d5a-b706-0be7dac7a44d
+
+		annotation Numerator = Voluntary Separations
+
+		annotation Denominator = Headcount Avg
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Regretted separations divided by average headcount for the selected period.
+	measure 'Regretted Turnover %' = DIVIDE ( [Regretted Separations], [Headcount Avg] )
+		formatString: 0.0%
+		displayFolder: 02 Turnover
+		lineageTag: 317dd162-14fa-5899-9c28-78e200de013c
+
+		annotation Numerator = Regretted Separations
+
+		annotation Denominator = Headcount Avg
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Turnover % scaled to 12 months so months, quarters and years compare.
+	measure 'Annualized Turnover %' =
+			VAR _months = COUNTROWS ( FILTER ( VALUES ( 'Date'[date] ), 'Date'[is_month_end] && 'Date'[is_in_reporting_window] ) )
+			RETURN
+			    DIVIDE ( [Turnover %] * 12, _months )
+		formatString: 0.0%
+		displayFolder: 02 Turnover
+		lineageTag: 991315b4-c3f7-52a4-9f66-5f86e275c7f3
+
+		annotation Numerator = Turnover % x 12
+
+		annotation Denominator = Number of month ends in the period
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Share of resignations that were regretted.
+	measure 'Regretted Share of Voluntary Exits %' = DIVIDE ( [Regretted Separations], [Voluntary Separations] )
+		formatString: 0.0%
+		displayFolder: 02 Turnover
+		lineageTag: 4a25f1e2-cc15-5a77-8f26-3889dfb974c7
+
+		annotation Numerator = Regretted Separations
+
+		annotation Denominator = Voluntary Separations
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Of the employees on the payroll 12 months before the period's last month end, the share still employed (anywhere in the company) at that month end.
+	measure '12M Retention %' =
+			VAR _end = MAX ( 'Headcount'[month_end] )
+			VAR _start = EOMONTH ( _end, -12 )
+			VAR _cohort =
+			    CALCULATETABLE ( VALUES ( 'Headcount'[emp_id] ), REMOVEFILTERS ( 'Date' ), 'Headcount'[month_end] = _start )
+			VAR _stillEmployed =
+			    CALCULATETABLE (
+			        VALUES ( 'Headcount'[emp_id] ),
+			        REMOVEFILTERS ( 'Date' ),
+			        REMOVEFILTERS ( 'Org Unit' ),
+			        REMOVEFILTERS ( 'Job' ),
+			        REMOVEFILTERS ( 'Location' ),
+			        'Headcount'[month_end] = _end
+			    )
+			RETURN
+			    DIVIDE ( COUNTROWS ( INTERSECT ( _cohort, _stillEmployed ) ), COUNTROWS ( _cohort ) )
+		formatString: 0.0%
+		displayFolder: 02 Turnover
+		lineageTag: 6a00d349-398c-526a-82c3-1d6640dc032d
+
+		annotation Numerator = Employees in the start cohort still in core.fact_headcount_monthly at the end month
+
+		annotation Denominator = Employees in core.fact_headcount_monthly at end month - 12
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Of the employees hired in the period, the share who left within 12 months of hire (any exit type). Recent cohorts are incomplete.
+	measure 'First-Year Attrition %' =
+			VAR _firstYearExits =
+			    CALCULATE (
+			        COUNTROWS ( 'Separation' ),
+			        USERELATIONSHIP ( 'Separation'[hire_date], 'Date'[date] ),
+			        'Separation'[is_first_year_exit] = TRUE ()
+			    )
+			RETURN
+			    DIVIDE ( _firstYearExits, [Hires] )
+		formatString: 0.0%
+		displayFolder: 02 Turnover
+		lineageTag: fff57c1f-7017-510f-9095-e7dfef7de48c
+
+		annotation Numerator = core.fact_separation rows with is_first_year_exit, filtered by hire_date (inactive relationship)
+
+		annotation Denominator = Hires
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Average months of service of leavers in the period.
+	measure 'Avg Tenure at Exit Months' = AVERAGE ( 'Separation'[tenure_months] )
+		formatString: #,0.0
+		displayFolder: 02 Turnover
+		lineageTag: 23d8ec5f-4a95-5058-9dea-fae5215c622d
+
+		annotation Numerator = Average core.fact_separation.tenure_months
+
+		annotation Denominator = n/a
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Exits counted by the date notice was given (leading indicator of exits).
+	measure 'Separations by Notice Date' = CALCULATE ( [Separations], USERELATIONSHIP ( 'Employee Event'[notice_date], 'Date'[date] ) )
+		formatString: #,0
+		displayFolder: 02 Turnover
+		lineageTag: e9763181-6f70-5abb-b4f2-381506e05041
+
+		annotation Numerator = core.fact_employee_event exits filtered by notice_date (inactive relationship)
+
+		annotation Denominator = n/a
+
+		annotation Owner = HR Business Partner Lead
+
+	/// Requisitions with an open date in the period.
+	measure 'Requisitions Opened' = COUNTROWS ( 'Requisition' )
+		formatString: #,0
+		displayFolder: 03 Recruiting
+		lineageTag: 841dbd2b-6da1-5ae3-bd71-dbe6921d6c0f
+
+		annotation Numerator = core.fact_requisition rows by open_date
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Requisitions whose offer was accepted in the period (internal or external).
+	measure 'Requisitions Filled' =
+			CALCULATE (
+			    COUNTROWS ( 'Requisition' ),
+			    'Requisition'[is_filled] = TRUE (),
+			    USERELATIONSHIP ( 'Requisition'[accept_date], 'Date'[date] )
+			)
+		formatString: #,0
+		displayFolder: 03 Recruiting
+		lineageTag: d2ab3b3f-9ec6-5f0d-957c-c2b1cabe39d9
+
+		annotation Numerator = core.fact_requisition filled rows by accept_date (inactive relationship)
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Requisitions opened on or before the last day of the period and not yet closed on that day.
+	measure 'Open Requisitions at Period End' =
+			VAR _end = MAX ( 'Date'[date] )
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( 'Requisition' ),
+			        REMOVEFILTERS ( 'Date' ),
+			        'Requisition'[open_date] <= _end,
+			        ISBLANK ( 'Requisition'[closed_date] ) || 'Requisition'[closed_date] > _end
+			    )
+		formatString: #,0
+		displayFolder: 03 Recruiting
+		lineageTag: 1bdafcbf-82c5-56dd-852d-0f9a68ca0c87
+
+		annotation Numerator = core.fact_requisition rows open on the last day of the period
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Requisitions filled by an external candidate who started in the period.
+	measure 'External Hires' =
+			CALCULATE (
+			    COUNTROWS ( 'Requisition' ),
+			    'Requisition'[is_external_hire] = TRUE (),
+			    USERELATIONSHIP ( 'Requisition'[start_date], 'Date'[date] )
+			)
+		formatString: #,0
+		displayFolder: 03 Recruiting
+		lineageTag: 5fbb4306-b9c5-52e5-99cd-5f0c6c453fb9
+
+		annotation Numerator = core.fact_requisition rows with is_external_hire by start_date
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Requisitions filled by an internal candidate who started in the new role in the period.
+	measure 'Internal Fills' =
+			CALCULATE (
+			    COUNTROWS ( 'Requisition' ),
+			    'Requisition'[is_internal_fill] = TRUE (),
+			    USERELATIONSHIP ( 'Requisition'[start_date], 'Date'[date] )
+			)
+		formatString: #,0
+		displayFolder: 03 Recruiting
+		lineageTag: beac7709-fd19-5819-ae0b-a3453380525a
+
+		annotation Numerator = core.fact_requisition rows with is_internal_fill by start_date
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Share of filled requisitions that went to internal candidates.
+	measure 'Internal Fill Rate %' = DIVIDE ( [Internal Fills], [External Hires] + [Internal Fills] )
+		formatString: 0.0%
+		displayFolder: 03 Recruiting
+		lineageTag: e82cc957-59a8-594b-a460-850168c89b1b
+
+		annotation Numerator = Internal Fills
+
+		annotation Denominator = External Hires + Internal Fills
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Average days from requisition open to offer accepted, for requisitions filled in the period.
+	measure 'Avg Time to Fill Days' =
+			CALCULATE (
+			    AVERAGE ( 'Requisition'[days_to_fill] ),
+			    'Requisition'[is_filled] = TRUE (),
+			    USERELATIONSHIP ( 'Requisition'[accept_date], 'Date'[date] )
+			)
+		formatString: #,0.0
+		displayFolder: 03 Recruiting
+		lineageTag: df8ddc8d-efac-5160-9657-6c67efa5422b
+
+		annotation Numerator = Sum of core.fact_requisition.days_to_fill (accept_date - open_date)
+
+		annotation Denominator = Filled requisitions by accept_date
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Average days from requisition open to the hire's first day, for starts in the period.
+	measure 'Avg Time to Start Days' =
+			CALCULATE (
+			    AVERAGE ( 'Requisition'[days_to_start] ),
+			    'Requisition'[is_filled] = TRUE (),
+			    USERELATIONSHIP ( 'Requisition'[start_date], 'Date'[date] )
+			)
+		formatString: #,0.0
+		displayFolder: 03 Recruiting
+		lineageTag: 14b97f45-fe22-5d5a-9613-f2f015158a9e
+
+		annotation Numerator = Sum of core.fact_requisition.days_to_start (start_date - open_date)
+
+		annotation Denominator = Filled requisitions by start_date
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// External spend plus recruiter time for requisitions whose hire started in the period.
+	measure 'Recruiting Cost' =
+			CALCULATE (
+			    SUM ( 'Requisition'[total_cost_usd] ),
+			    'Requisition'[is_filled] = TRUE (),
+			    USERELATIONSHIP ( 'Requisition'[start_date], 'Date'[date] )
+			)
+		formatString: \$#,0
+		displayFolder: 03 Recruiting
+		lineageTag: 8068702d-2f70-52e2-b73e-97bfeaa1cf96
+
+		annotation Numerator = Sum of core.fact_requisition.total_cost_usd (external + recruiter hours x hourly cost)
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Recruiting cost divided by all hires (external hires and internal fills) starting in the period.
+	measure 'Cost per Hire' = DIVIDE ( [Recruiting Cost], [External Hires] + [Internal Fills] )
+		formatString: \$#,0
+		displayFolder: 03 Recruiting
+		lineageTag: 33bd568c-514e-5101-9a46-f35bcdb3e281
+
+		annotation Numerator = Recruiting Cost
+
+		annotation Denominator = External Hires + Internal Fills
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Recruiting cost of external hires divided by external hires.
+	measure 'External Cost per Hire' = DIVIDE ( CALCULATE ( [Recruiting Cost], 'Requisition'[is_external_hire] = TRUE () ), [External Hires] )
+		formatString: \$#,0
+		displayFolder: 03 Recruiting
+		lineageTag: 685d1a3f-cb5b-5d25-b1bb-89098f5b387e
+
+		annotation Numerator = Recruiting Cost of external hires
+
+		annotation Denominator = External Hires
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Selected Backfill Rate what-if value (default 100%).
+	measure 'Backfill Rate Value' = SELECTEDVALUE ( 'Backfill Rate'[Backfill Rate], 1 )
+		formatString: 0%
+		displayFolder: 03 Recruiting
+		lineageTag: 7ac26090-a102-5cd9-af7f-890710c0f3e1
+
+		annotation Numerator = What-if table Backfill Rate
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Direct cost of an internal fill plus the expected cost of backfilling the role the mover left: direct + Backfill Rate x External Cost per Hire.
+	measure 'True Internal Cost per Hire' =
+			VAR _direct = DIVIDE ( CALCULATE ( [Recruiting Cost], 'Requisition'[is_internal_fill] = TRUE () ), [Internal Fills] )
+			VAR _backfill = [Backfill Rate Value] * [External Cost per Hire]
+			RETURN
+			    IF ( NOT ISBLANK ( _direct ), _direct + _backfill )
+		formatString: \$#,0
+		displayFolder: 03 Recruiting
+		lineageTag: fdff91d7-8a4d-55d3-bc1d-2203717237a1
+
+		annotation Numerator = Recruiting Cost of internal fills + Backfill Rate x External Cost per Hire x Internal Fills
+
+		annotation Denominator = Internal Fills
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Quality of hire: share of external hires starting in the period who left within 12 months (only hires with 12 months observable).
+	measure 'Hire 12M Exit Rate %' =
+			VAR _left =
+			    CALCULATE (
+			        COUNTROWS ( 'Requisition' ),
+			        'Requisition'[hire_exited_within_12m] = TRUE (),
+			        USERELATIONSHIP ( 'Requisition'[start_date], 'Date'[date] )
+			    )
+			VAR _observable =
+			    CALCULATE (
+			        COUNTROWS ( 'Requisition' ),
+			        NOT ISBLANK ( 'Requisition'[hire_exited_within_12m] ),
+			        USERELATIONSHIP ( 'Requisition'[start_date], 'Date'[date] )
+			    )
+			RETURN
+			    DIVIDE ( _left, _observable )
+		formatString: 0.0%
+		displayFolder: 03 Recruiting
+		lineageTag: 6a77483d-a583-58cf-96c9-99133294ce80
+
+		annotation Numerator = External hires with hire_exited_within_12m = true
+
+		annotation Denominator = External hires with a non-null hire_exited_within_12m
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Applications received in the period (by applied date).
+	measure Applications = COUNTROWS ( 'Application' )
+		formatString: #,0
+		displayFolder: 04 Funnel
+		lineageTag: 1fe558c8-bb6f-56c8-b257-7b6f7881d4df
+
+		annotation Numerator = core.fact_application rows
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Applications that reached screening or later.
+	measure 'Screened Applications' = SUM ( 'Application'[reached_screen] )
+		formatString: #,0
+		displayFolder: 04 Funnel
+		lineageTag: dfdb601f-2c26-5009-b95e-d0e00994b6ca
+
+		annotation Numerator = core.fact_application.reached_screen
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Applications that reached interview or later.
+	measure 'Interviewed Applications' = SUM ( 'Application'[reached_interview] )
+		formatString: #,0
+		displayFolder: 04 Funnel
+		lineageTag: 624f6904-7105-5a43-a8f8-ea95b4450223
+
+		annotation Numerator = core.fact_application.reached_interview
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Applications that received an offer (accepted or declined).
+	measure 'Offers Made' = SUM ( 'Application'[reached_offer] )
+		formatString: #,0
+		displayFolder: 04 Funnel
+		lineageTag: ef9106fe-d0fd-530d-bafa-ea6f238239d4
+
+		annotation Numerator = core.fact_application.reached_offer
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Applications whose offer was accepted.
+	measure 'Offers Accepted' = SUM ( 'Application'[accepted] )
+		formatString: #,0
+		displayFolder: 04 Funnel
+		lineageTag: 9c4f4836-9773-5d34-b5ae-a98346fdad6b
+
+		annotation Numerator = core.fact_application.accepted
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Accepted offers divided by applications - the share of applicants from a channel who are hired.
+	measure 'Channel Yield %' = DIVIDE ( [Offers Accepted], [Applications] )
+		formatString: 0.0%
+		displayFolder: 04 Funnel
+		lineageTag: 3d092550-b14c-55f8-9c14-d0ec53bbe512
+
+		annotation Numerator = Offers Accepted
+
+		annotation Denominator = Applications
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Accepted offers divided by offers made.
+	measure 'Offer Acceptance %' = DIVIDE ( [Offers Accepted], [Offers Made] )
+		formatString: 0.0%
+		displayFolder: 04 Funnel
+		lineageTag: 2e2c96c1-2817-5035-8a14-8df20b1f43bf
+
+		annotation Numerator = Offers Accepted
+
+		annotation Denominator = Offers Made
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Share of applications that reached screening.
+	measure 'Screen Rate %' = DIVIDE ( [Screened Applications], [Applications] )
+		formatString: 0.0%
+		displayFolder: 04 Funnel
+		lineageTag: cddbc20d-e52c-5c65-aa53-350ce9e16918
+
+		annotation Numerator = Screened Applications
+
+		annotation Denominator = Applications
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Share of screened applications that reached interview.
+	measure 'Interview Rate %' = DIVIDE ( [Interviewed Applications], [Screened Applications] )
+		formatString: 0.0%
+		displayFolder: 04 Funnel
+		lineageTag: c0cc7f7e-ab7f-53ee-93a9-04c0032998f9
+
+		annotation Numerator = Interviewed Applications
+
+		annotation Denominator = Screened Applications
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Share of interviewed applications that received an offer.
+	measure 'Offer Rate %' = DIVIDE ( [Offers Made], [Interviewed Applications] )
+		formatString: 0.0%
+		displayFolder: 04 Funnel
+		lineageTag: 526a20ab-6ff6-5b1e-807f-4e366abee260
+
+		annotation Numerator = Offers Made
+
+		annotation Denominator = Interviewed Applications
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Applications needed for one accepted offer.
+	measure 'Applications per Hire' = DIVIDE ( [Applications], [Offers Accepted] )
+		formatString: #,0.0
+		displayFolder: 04 Funnel
+		lineageTag: c16d3a96-e6d6-5704-b822-6a88e1b63a1b
+
+		annotation Numerator = Applications
+
+		annotation Denominator = Offers Accepted
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// For the Funnel Stage on the axis, the applications that reached that stage or a later one.
+	measure 'Applications Reaching Stage' =
+			VAR _stage = SELECTEDVALUE ( 'Funnel Stage'[stage_no] )
+			RETURN
+			    IF ( NOT ISBLANK ( _stage ), CALCULATE ( COUNTROWS ( 'Application' ), 'Application'[stage_reached] >= _stage ) )
+		formatString: #,0
+		displayFolder: 04 Funnel
+		lineageTag: 54555cc2-c715-5a51-9f37-b8530d446f7b
+
+		annotation Numerator = core.fact_application rows with stage_reached >= selected stage
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// Applications reaching this stage divided by applications reaching the previous stage.
+	measure 'Stage Conversion %' =
+			VAR _stage = SELECTEDVALUE ( 'Funnel Stage'[stage_no] )
+			VAR _previous = CALCULATE ( COUNTROWS ( 'Application' ), 'Application'[stage_reached] >= _stage - 1 )
+			RETURN
+			    IF ( _stage > 1, DIVIDE ( [Applications Reaching Stage], _previous ) )
+		formatString: 0.0%
+		displayFolder: 04 Funnel
+		lineageTag: 8448a005-c52d-5a94-a396-6992b208ce8d
+
+		annotation Numerator = Applications Reaching Stage
+
+		annotation Denominator = Applications reaching the previous stage
+
+		annotation Owner = Talent Acquisition Lead
+
+	/// The most recent annual pay review (1 April) inside the selection; pay measures use this snapshot.
+	measure 'Latest Pay Review Date' = MAX ( 'Compensation'[pay_review_date] )
+		formatString: yyyy-mm-dd
+		displayFolder: 05 Pay
+		lineageTag: 9f572cb3-517e-5f70-956e-b3f7cd60e2c3
+
+		annotation Numerator = Max core.fact_compensation.pay_review_date
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Employees with a pay record at the latest pay review in the selection.
+	measure 'Employees in Pay Review' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    CALCULATE ( COUNTROWS ( 'Compensation' ), 'Compensation'[pay_review_date] = _review )
+		formatString: #,0
+		displayFolder: 05 Pay
+		lineageTag: 7ce36e20-65f6-577b-8883-82253368af83
+
+		annotation Numerator = core.fact_compensation rows at the latest review
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Average annual base salary at the latest pay review in the selection.
+	measure 'Avg Base Salary' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    CALCULATE ( AVERAGE ( 'Compensation'[base_salary] ), 'Compensation'[pay_review_date] = _review )
+		formatString: \$#,0
+		displayFolder: 05 Pay
+		lineageTag: 2edf690c-a023-5bb3-9340-9e743a505d99
+
+		annotation Numerator = Sum of core.fact_compensation.base_salary at latest review
+
+		annotation Denominator = Employees in Pay Review
+
+		annotation Owner = Reward Lead
+
+	/// Median annual base salary at the latest pay review in the selection.
+	measure 'Median Base Salary' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    CALCULATE ( MEDIAN ( 'Compensation'[base_salary] ), 'Compensation'[pay_review_date] = _review )
+		formatString: \$#,0
+		displayFolder: 05 Pay
+		lineageTag: 719a836f-bcdd-565e-ad3f-e161b8719c0f
+
+		annotation Numerator = core.fact_compensation.base_salary at latest review
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Sum of annual base salaries at the latest pay review in the selection.
+	measure 'Total Base Payroll' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    CALCULATE ( SUM ( 'Compensation'[base_salary] ), 'Compensation'[pay_review_date] = _review )
+		formatString: \$#,0
+		displayFolder: 05 Pay
+		lineageTag: 897d5857-41ad-55c7-bf01-55dfffbcf8a4
+
+		annotation Numerator = Sum of core.fact_compensation.base_salary at latest review
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Average base plus allowances at the latest pay review in the selection.
+	measure 'Avg Total Cash' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    CALCULATE ( AVERAGE ( 'Compensation'[total_cash] ), 'Compensation'[pay_review_date] = _review )
+		formatString: \$#,0
+		displayFolder: 05 Pay
+		lineageTag: 8c1a7c85-1e8c-5517-b558-545a32dc8b45
+
+		annotation Numerator = Sum of core.fact_compensation.total_cash at latest review
+
+		annotation Denominator = Employees in Pay Review
+
+		annotation Owner = Reward Lead
+
+	/// Average of base salary / grade band midpoint at the latest pay review (1.00 = at midpoint).
+	measure 'Avg Compa-Ratio' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    CALCULATE ( AVERAGE ( 'Compensation'[compa_ratio] ), 'Compensation'[pay_review_date] = _review )
+		formatString: 0.000
+		displayFolder: 05 Pay
+		lineageTag: f4ea2f02-4842-57d1-9522-404d183947f1
+
+		annotation Numerator = Sum of core.fact_compensation.compa_ratio (base_salary / band_mid)
+
+		annotation Denominator = Employees in Pay Review
+
+		annotation Owner = Reward Lead
+
+	/// Average position of base salary in the band: 0% = band minimum, 100% = band maximum.
+	measure 'Avg Range Penetration %' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    CALCULATE ( AVERAGE ( 'Compensation'[range_penetration] ), 'Compensation'[pay_review_date] = _review )
+		formatString: 0.0%
+		displayFolder: 05 Pay
+		lineageTag: 48285787-f020-5b63-86c8-c4cbd4b1c414
+
+		annotation Numerator = Sum of core.fact_compensation.range_penetration ((base - min) / (max - min))
+
+		annotation Denominator = Employees in Pay Review
+
+		annotation Owner = Reward Lead
+
+	/// Share of employees paid below their grade band minimum at the latest review.
+	measure 'Below Band Minimum %' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    DIVIDE (
+			        CALCULATE ( COUNTROWS ( 'Compensation' ), 'Compensation'[pay_review_date] = _review, 'Compensation'[range_penetration] < 0 ),
+			        CALCULATE ( COUNTROWS ( 'Compensation' ), 'Compensation'[pay_review_date] = _review )
+			    )
+		formatString: 0.0%
+		displayFolder: 05 Pay
+		lineageTag: 5fe226d3-3e9d-5726-bf68-d1a3664a4ab7
+
+		annotation Numerator = Pay records with range_penetration < 0
+
+		annotation Denominator = Employees in Pay Review
+
+		annotation Owner = Reward Lead
+
+	/// Share of employees paid above their grade band maximum at the latest review.
+	measure 'Above Band Maximum %' =
+			VAR _review = MAX ( 'Compensation'[pay_review_date] )
+			RETURN
+			    DIVIDE (
+			        CALCULATE ( COUNTROWS ( 'Compensation' ), 'Compensation'[pay_review_date] = _review, 'Compensation'[range_penetration] > 1 ),
+			        CALCULATE ( COUNTROWS ( 'Compensation' ), 'Compensation'[pay_review_date] = _review )
+			    )
+		formatString: 0.0%
+		displayFolder: 05 Pay
+		lineageTag: 8759bb2c-c8ca-5de4-b7b5-d592c3eb6862
+
+		annotation Numerator = Pay records with range_penetration > 1
+
+		annotation Denominator = Employees in Pay Review
+
+		annotation Owner = Reward Lead
+
+	/// Average base salary of women at the latest pay review.
+	measure 'Avg Base Salary Female' = CALCULATE ( [Avg Base Salary], 'Employee'[gender] = "Female" )
+		formatString: \$#,0
+		displayFolder: 06 Equity
+		lineageTag: af29a1bf-decc-5a1f-931e-24031d573add
+
+		annotation Numerator = Avg Base Salary for gender = Female
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Average base salary of men at the latest pay review.
+	measure 'Avg Base Salary Male' = CALCULATE ( [Avg Base Salary], 'Employee'[gender] = "Male" )
+		formatString: \$#,0
+		displayFolder: 06 Equity
+		lineageTag: 60f7e3ec-53fa-548d-8d05-88f52ba47b90
+
+		annotation Numerator = Avg Base Salary for gender = Male
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Unadjusted gap: average female base / average male base - 1. Negative means women are paid less. No controls.
+	measure 'Raw Gap %' =
+			VAR _female = [Avg Base Salary Female]
+			VAR _male = [Avg Base Salary Male]
+			RETURN
+			    IF ( NOT ISBLANK ( _female ) && NOT ISBLANK ( _male ), DIVIDE ( _female, _male ) - 1 )
+		formatString: 0.0%
+		displayFolder: 06 Equity
+		lineageTag: 13ec5dde-3ab4-5617-a432-e7ae453d97e6
+
+		annotation Numerator = Avg Base Salary Female
+
+		annotation Denominator = Avg Base Salary Male
+
+		annotation Owner = Reward Lead
+
+	/// Gender gap after grade, job family, tenure, station and performance: exp(coefficient on is_female) - 1 from the with_perf OLS model (company level, not sliceable).
+	measure 'Adjusted Gap %' =
+			CALCULATE (
+			    MAX ( 'Pay Coefficient'[pct_effect] ),
+			    'Pay Coefficient'[model] = "with_perf",
+			    'Pay Coefficient'[variable] = "is_female"
+			)
+		formatString: 0.0%
+		displayFolder: 06 Equity
+		lineageTag: 0c9075c2-da0e-5653-82ce-037cb93b61f9
+
+		annotation Numerator = ml.pay_coefficients.pct_effect (model with_perf, variable is_female)
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Adjusted gap from the model that leaves performance rating out (tests whether ratings explain part of the gap).
+	measure 'Adjusted Gap Without Performance %' =
+			CALCULATE (
+			    MAX ( 'Pay Coefficient'[pct_effect] ),
+			    'Pay Coefficient'[model] = "without_perf",
+			    'Pay Coefficient'[variable] = "is_female"
+			)
+		formatString: 0.0%
+		displayFolder: 06 Equity
+		lineageTag: cf1502a2-05f0-5bcc-bd38-b785b6f424cb
+
+		annotation Numerator = ml.pay_coefficients.pct_effect (model without_perf, variable is_female)
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Lower bound of the 95% confidence interval of the adjusted gap.
+	measure 'Adjusted Gap CI Low %' =
+			CALCULATE (
+			    EXP ( MAX ( 'Pay Coefficient'[ci_low] ) ) - 1,
+			    'Pay Coefficient'[model] = "with_perf",
+			    'Pay Coefficient'[variable] = "is_female"
+			)
+		formatString: 0.0%
+		displayFolder: 06 Equity
+		lineageTag: b2c427a8-56ff-5b81-b107-ef5bdc8fc1f3
+
+		annotation Numerator = ml.pay_coefficients.ci_low (with_perf, is_female)
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Upper bound of the 95% confidence interval of the adjusted gap.
+	measure 'Adjusted Gap CI High %' =
+			CALCULATE (
+			    EXP ( MAX ( 'Pay Coefficient'[ci_high] ) ) - 1,
+			    'Pay Coefficient'[model] = "with_perf",
+			    'Pay Coefficient'[variable] = "is_female"
+			)
+		formatString: 0.0%
+		displayFolder: 06 Equity
+		lineageTag: 3931458d-72c2-567f-b97a-7577cb1b7fb0
+
+		annotation Numerator = ml.pay_coefficients.ci_high (with_perf, is_female)
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// p-value of the gender coefficient in the with_perf model.
+	measure 'Adjusted Gap p-Value' =
+			CALCULATE (
+			    MAX ( 'Pay Coefficient'[p_value] ),
+			    'Pay Coefficient'[model] = "with_perf",
+			    'Pay Coefficient'[variable] = "is_female"
+			)
+		formatString: 0.0000
+		displayFolder: 06 Equity
+		lineageTag: ffc4ba18-9845-5ba8-9019-6d2d967861ef
+
+		annotation Numerator = ml.pay_coefficients.p_value (with_perf, is_female)
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Percentage effect exp(coef) - 1 of the pay-model variable on the visual (use with Pay Coefficient columns).
+	measure 'Pay Model Effect %' = MAX ( 'Pay Coefficient'[pct_effect] )
+		formatString: 0.0%
+		displayFolder: 06 Equity
+		lineageTag: ff208116-e8fa-5cf0-949f-f3832b228036
+
+		annotation Numerator = ml.pay_coefficients.pct_effect
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// p-value of the pay-model variable on the visual.
+	measure 'Pay Model p-Value' = MAX ( 'Pay Coefficient'[p_value] )
+		formatString: 0.0000
+		displayFolder: 06 Equity
+		lineageTag: 457d78b0-c516-5292-abef-b5fc1f5ac470
+
+		annotation Numerator = ml.pay_coefficients.p_value
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Selected Remediation Threshold what-if value in standard deviations (default 1.5).
+	measure 'Remediation Threshold Value' = SELECTEDVALUE ( 'Remediation Threshold'[Remediation Threshold], 1.5 )
+		formatString: 0.00
+		displayFolder: 06 Equity
+		lineageTag: 5cfa39d3-1148-56f8-b357-626fdc1a06d9
+
+		annotation Numerator = What-if table Remediation Threshold
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Employees whose standardised residual from the gender-blind fair-pay model is at or below minus the threshold.
+	measure 'Employees Below Fair Pay' =
+			VAR _threshold = [Remediation Threshold Value]
+			RETURN
+			    CALCULATE ( COUNTROWS ( 'Pay Residual' ), 'Pay Residual'[std_resid] <= -_threshold )
+		formatString: #,0
+		displayFolder: 06 Equity
+		lineageTag: 331d840a-70a6-533a-9342-9fa04d2d6830
+
+		annotation Numerator = ml.pay_residuals rows with std_resid <= -threshold
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Annual base cost of lifting every employee below fair pay to their predicted fair salary.
+	measure 'Remediation Cost' =
+			VAR _threshold = [Remediation Threshold Value]
+			RETURN
+			    SUMX (
+			        FILTER ( 'Pay Residual', 'Pay Residual'[std_resid] <= -_threshold ),
+			        'Pay Residual'[pred_salary] - 'Pay Residual'[base_salary]
+			    )
+		formatString: \$#,0
+		displayFolder: 06 Equity
+		lineageTag: c7b9934c-104c-5fcd-a9d0-2f71b3409122
+
+		annotation Numerator = Sum of (pred_salary - base_salary) over ml.pay_residuals below the threshold
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Share of women among employees below fair pay.
+	measure 'Female Share Below Fair Pay %' = DIVIDE ( CALCULATE ( [Employees Below Fair Pay], 'Pay Residual'[is_female] = 1 ), [Employees Below Fair Pay] )
+		formatString: 0.0%
+		displayFolder: 06 Equity
+		lineageTag: e180dd27-2502-5523-bcac-e15f41434ed8
+
+		annotation Numerator = Employees Below Fair Pay who are female
+
+		annotation Denominator = Employees Below Fair Pay
+
+		annotation Owner = Reward Lead
+
+	/// Predicted gender-blind fair salary of the employee on the visual (scatter X axis).
+	measure 'Fair Pay Salary' = MAX ( 'Pay Residual'[pred_salary] )
+		formatString: \$#,0
+		displayFolder: 06 Equity
+		lineageTag: 5ccbc974-4101-553a-8856-0e337b5f9b59
+
+		annotation Numerator = ml.pay_residuals.pred_salary
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Actual base salary of the employee on the visual at the latest review (scatter Y axis).
+	measure 'Actual Base Salary' = MAX ( 'Pay Residual'[base_salary] )
+		formatString: \$#,0
+		displayFolder: 06 Equity
+		lineageTag: bc8d6c62-ccd2-5362-8d09-71a74ffe3f29
+
+		annotation Numerator = ml.pay_residuals.base_salary
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Standardised residual from the fair-pay model for the employee on the visual (negative = paid below fair pay).
+	measure 'Pay Std Residual' = MIN ( 'Pay Residual'[std_resid] )
+		formatString: 0.00
+		displayFolder: 06 Equity
+		lineageTag: a8ad759a-eb1c-57d8-9146-599801bedb20
+
+		annotation Numerator = ml.pay_residuals.std_resid
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// 1 when the employee on the visual is at or below minus the remediation threshold, else 0 (use as a visual filter).
+	measure 'Is Below Fair Pay' =
+			VAR _threshold = [Remediation Threshold Value]
+			RETURN
+			    IF ( MIN ( 'Pay Residual'[std_resid] ) <= -_threshold, 1, 0 )
+		formatString: 0
+		displayFolder: 06 Equity
+		lineageTag: 3c322106-1e21-5795-b500-198740e7eb7e
+
+		annotation Numerator = ml.pay_residuals.std_resid vs threshold
+
+		annotation Denominator = n/a
+
+		annotation Owner = Reward Lead
+
+	/// Annual cost of raising all women's base pay by the adjusted gap: sum(female base) x (1 / (1 + gap) - 1).
+	measure 'Gap Closure Cost' =
+			VAR _gap = [Adjusted Gap %]
+			VAR _femaleBase = CALCULATE ( SUM ( 'Pay Residual'[base_salary] ), 'Pay Residual'[is_female] = 1 )
+			RETURN
+			    _femaleBase * DIVIDE ( -_gap, 1 + _gap )
+		formatString: \$#,0
+		displayFolder: 06 Equity
+		lineageTag: 5dca492b-014d-563f-bd9c-6304140ace8d
+
+		annotation Numerator = Sum of female base in ml.pay_residuals x -gap
+
+		annotation Denominator = 1 + Adjusted Gap %
+
+		annotation Owner = Reward Lead
+
+	/// Employees with a performance review in the period.
+	measure 'Employees Rated' = COUNTROWS ( 'Performance' )
+		formatString: #,0
+		displayFolder: 07 Performance
+		lineageTag: 0330b247-5974-5c32-855d-6c4b6e26496a
+
+		annotation Numerator = core.fact_performance rows
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Management Lead
+
+	/// Average rating (1-5) of reviews in the period.
+	measure 'Avg Performance Rating' = AVERAGE ( 'Performance'[rating] )
+		formatString: 0.00
+		displayFolder: 07 Performance
+		lineageTag: eda294db-79db-53e8-a039-26cb52b81ece
+
+		annotation Numerator = Sum of core.fact_performance.rating
+
+		annotation Denominator = Employees Rated
+
+		annotation Owner = Talent Management Lead
+
+	/// Share of reviews rated 4 or 5.
+	measure 'High Performer %' = DIVIDE ( CALCULATE ( COUNTROWS ( 'Performance' ), 'Performance'[rating] >= 4 ), [Employees Rated] )
+		formatString: 0.0%
+		displayFolder: 07 Performance
+		lineageTag: 90387f2f-6e2a-5eb6-ad5f-749d7d27ae54
+
+		annotation Numerator = Reviews with rating >= 4
+
+		annotation Denominator = Employees Rated
+
+		annotation Owner = Talent Management Lead
+
+	/// Share of reviews rated 1 or 2.
+	measure 'Low Performer %' = DIVIDE ( CALCULATE ( COUNTROWS ( 'Performance' ), 'Performance'[rating] <= 2 ), [Employees Rated] )
+		formatString: 0.0%
+		displayFolder: 07 Performance
+		lineageTag: beafd78d-daa4-50f3-b158-d4137739a197
+
+		annotation Numerator = Reviews with rating <= 2
+
+		annotation Denominator = Employees Rated
+
+		annotation Owner = Talent Management Lead
+
+	/// Employees in each nine-box cell (performance band x potential) - use with the nine-box columns.
+	measure 'Nine-Box Count' = COUNTROWS ( 'Performance' )
+		formatString: #,0
+		displayFolder: 07 Performance
+		lineageTag: 88a1d1fe-1239-59f3-b6d6-c3abc704a063
+
+		annotation Numerator = core.fact_performance rows per nine_box_cell
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Management Lead
+
+	/// Share of rated employees in the nine-box cell on the visual.
+	measure 'Nine-Box Share %' =
+			DIVIDE (
+			    [Nine-Box Count],
+			    CALCULATE (
+			        [Nine-Box Count],
+			        REMOVEFILTERS (
+			            'Performance'[nine_box_cell],
+			            'Performance'[nine_box_label],
+			            'Performance'[performance_band],
+			            'Performance'[potential]
+			        )
+			    )
+			)
+		formatString: 0.0%
+		displayFolder: 07 Performance
+		lineageTag: 3a74d04c-2d3d-5ae7-965f-27e1e84f6308
+
+		annotation Numerator = Nine-Box Count
+
+		annotation Denominator = Nine-Box Count across all cells
+
+		annotation Owner = Talent Management Lead
+
+	/// Employees in nine-box cell 9 (high performance, high potential).
+	measure 'Future Leaders Box 9' = CALCULATE ( [Nine-Box Count], 'Performance'[nine_box_cell] = 9 )
+		formatString: #,0
+		displayFolder: 07 Performance
+		lineageTag: d7bb2ab9-930b-58ff-950f-ee7dbafa246a
+
+		annotation Numerator = core.fact_performance rows with nine_box_cell = 9
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Management Lead
+
+	/// Grade increases in the period (in-place promotions and internal moves to a higher grade).
+	measure Promotions = CALCULATE ( COUNTROWS ( 'Employee Event' ), 'Employee Event'[is_promotion] = TRUE () )
+		formatString: #,0
+		displayFolder: 07 Performance
+		lineageTag: d46f2250-d28a-52b6-a4db-fcce76c03cf1
+
+		annotation Numerator = core.fact_employee_event rows with is_promotion = true
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Management Lead
+
+	/// Promotions divided by average headcount.
+	measure 'Promotion %' = DIVIDE ( [Promotions], [Headcount Avg] )
+		formatString: 0.0%
+		displayFolder: 07 Performance
+		lineageTag: 58c23f18-8bbe-5715-b442-6d471d8b0987
+
+		annotation Numerator = Promotions
+
+		annotation Denominator = Headcount Avg
+
+		annotation Owner = Talent Management Lead
+
+	/// Lateral moves and internal requisition fills in the period. Excludes re-org moves.
+	measure 'Internal Moves' = CALCULATE ( COUNTROWS ( 'Employee Event' ), 'Employee Event'[is_internal_mobility] = TRUE () )
+		formatString: #,0
+		displayFolder: 07 Performance
+		lineageTag: 047af271-07e9-5c0f-b500-9fd669d3b96a
+
+		annotation Numerator = core.fact_employee_event rows with move_type Lateral or Internal requisition
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Management Lead
+
+	/// Internal moves divided by average headcount (re-org moves excluded).
+	measure 'Internal Mobility %' = DIVIDE ( [Internal Moves], [Headcount Avg] )
+		formatString: 0.0%
+		displayFolder: 07 Performance
+		lineageTag: 1b6df5ea-8127-5c6b-95bd-580730300770
+
+		annotation Numerator = Internal Moves
+
+		annotation Denominator = Headcount Avg
+
+		annotation Owner = Talent Management Lead
+
+	/// Org changes caused by the 2023 re-organisation (the employee did not choose to move).
+	measure 'Reorg Moves' = CALCULATE ( COUNTROWS ( 'Employee Event' ), 'Employee Event'[move_type] = "Reorg" )
+		formatString: #,0
+		displayFolder: 07 Performance
+		lineageTag: 3a97e1b7-8e4b-56cb-bb8f-f2ef7eb24ace
+
+		annotation Numerator = core.fact_employee_event rows with move_type = Reorg
+
+		annotation Denominator = n/a
+
+		annotation Owner = Talent Management Lead
+
+	/// Every org move divided by average headcount - shows how the re-org inflates mobility if move_type is ignored.
+	measure 'All Moves Incl Reorg %' = DIVIDE ( CALCULATE ( COUNTROWS ( 'Employee Event' ), 'Employee Event'[event_type] = "Move" ), [Headcount Avg] )
+		formatString: 0.0%
+		displayFolder: 07 Performance
+		lineageTag: 2d42b4ce-9312-5cbf-bd6e-8ae22d74c9f0
+
+		annotation Numerator = core.fact_employee_event rows with event_type = Move
+
+		annotation Denominator = Headcount Avg
+
+		annotation Owner = Talent Management Lead
+
+	/// Hours of training completed in the period.
+	measure 'Training Hours' = SUM ( 'Training'[hours] )
+		formatString: #,0
+		displayFolder: 08 Training
+		lineageTag: adbd6dfe-6e08-550e-aefe-86618ec83396
+
+		annotation Numerator = Sum of core.fact_training.hours
+
+		annotation Denominator = n/a
+
+		annotation Owner = Learning & Development Lead
+
+	/// Cost of training completed in the period.
+	measure 'Training Cost' = SUM ( 'Training'[cost_usd] )
+		formatString: \$#,0
+		displayFolder: 08 Training
+		lineageTag: 4f439cb1-9959-5673-9bee-63edde8812cb
+
+		annotation Numerator = Sum of core.fact_training.cost_usd
+
+		annotation Denominator = n/a
+
+		annotation Owner = Learning & Development Lead
+
+	/// Course completions in the period.
+	measure 'Courses Completed' = COUNTROWS ( 'Training' )
+		formatString: #,0
+		displayFolder: 08 Training
+		lineageTag: 6a90dbf5-6eb9-58ff-b70e-67fb8b836bd9
+
+		annotation Numerator = core.fact_training rows
+
+		annotation Denominator = n/a
+
+		annotation Owner = Learning & Development Lead
+
+	/// Distinct employees who completed at least one course in the period.
+	measure Learners = DISTINCTCOUNT ( 'Training'[emp_id] )
+		formatString: #,0
+		displayFolder: 08 Training
+		lineageTag: 4bbd687d-bcaa-551e-91a8-391458a255f6
+
+		annotation Numerator = Distinct core.fact_training.emp_id
+
+		annotation Denominator = n/a
+
+		annotation Owner = Learning & Development Lead
+
+	/// Learners divided by employees on the payroll during the period.
+	measure 'Training Participation %' = DIVIDE ( [Learners], [Employees in Period] )
+		formatString: 0.0%
+		displayFolder: 08 Training
+		lineageTag: 646cb809-da75-5396-a0c6-6f7674fec85b
+
+		annotation Numerator = Learners
+
+		annotation Denominator = Employees in Period
+
+		annotation Owner = Learning & Development Lead
+
+	/// Training hours divided by average FTE.
+	measure 'Training Hours per FTE' = DIVIDE ( [Training Hours], [FTE Avg] )
+		formatString: #,0.0
+		displayFolder: 08 Training
+		lineageTag: 9edf4c61-153e-5ae0-99ff-76303dcaef2d
+
+		annotation Numerator = Training Hours
+
+		annotation Denominator = FTE Avg
+
+		annotation Owner = Learning & Development Lead
+
+	/// Training cost divided by average FTE.
+	measure 'Training Cost per FTE' = DIVIDE ( [Training Cost], [FTE Avg] )
+		formatString: \$#,0
+		displayFolder: 08 Training
+		lineageTag: 9b869280-8b17-5709-ac54-82c68fd4dc51
+
+		annotation Numerator = Training Cost
+
+		annotation Denominator = FTE Avg
+
+		annotation Owner = Learning & Development Lead
+
+	/// Hours from elective courses (not mandatory, not onboarding).
+	measure 'Elective Training Hours' = CALCULATE ( [Training Hours], 'Program'[program_type] = "Elective" )
+		formatString: #,0
+		displayFolder: 08 Training
+		lineageTag: 5cb0f41c-41b3-5674-893a-80b2dafa3ed7
+
+		annotation Numerator = Sum of core.fact_training.hours where program_type = Elective
+
+		annotation Denominator = n/a
+
+		annotation Owner = Learning & Development Lead
+
+	/// Share of snapshot employees who completed more than 20 training hours in the 12 months to the snapshot.
+	measure 'Over 20 Training Hours %' =
+			DIVIDE (
+			    CALCULATE ( COUNTROWS ( 'Attrition Score' ), 'Attrition Score'[training_over_20h] = 1 ),
+			    COUNTROWS ( 'Attrition Score' )
+			)
+		formatString: 0.0%
+		displayFolder: 08 Training
+		lineageTag: 3a05e5fe-f99d-54d4-a0b9-5a86b3a370b7
+
+		annotation Numerator = ml.attrition_scores rows with training_over_20h = 1
+
+		annotation Denominator = ml.attrition_scores rows
+
+		annotation Owner = Learning & Development Lead
+
+	/// 12-month voluntary exit rate of snapshot employees with more than 20 training hours (associated with, not caused by, training).
+	measure 'Voluntary Exit Rate Trained Over 20h %' =
+			CALCULATE (
+			    AVERAGE ( 'Attrition Score'[left_within_12m] ),
+			    'Attrition Score'[training_over_20h] = 1,
+			    'Attrition Score'[split] <> "current"
+			)
+		formatString: 0.0%
+		displayFolder: 08 Training
+		lineageTag: 11a5e835-0da3-5065-b417-6993a7c1e33c
+
+		annotation Numerator = Snapshot employees with >20h who left voluntarily within 12 months
+
+		annotation Denominator = Snapshot employees with >20h
+
+		annotation Owner = Learning & Development Lead
+
+	/// 12-month voluntary exit rate of snapshot employees with 20 or fewer training hours.
+	measure 'Voluntary Exit Rate Trained 20h or Less %' =
+			CALCULATE (
+			    AVERAGE ( 'Attrition Score'[left_within_12m] ),
+			    'Attrition Score'[training_over_20h] = 0,
+			    'Attrition Score'[split] <> "current"
+			)
+		formatString: 0.0%
+		displayFolder: 08 Training
+		lineageTag: 12fcccc6-1d42-519b-819a-35a88abd9bdd
+
+		annotation Numerator = Snapshot employees with <=20h who left voluntarily within 12 months
+
+		annotation Denominator = Snapshot employees with <=20h
+
+		annotation Owner = Learning & Development Lead
+
+	/// Model-adjusted voluntary leavers associated with avoidance: for snapshot employees with >20 training hours, the sum of (probability without the training association - modelled probability), using the fitted odds ratio. Association, not causation.
+	measure 'Avoided Leavers Associated with Training' =
+			VAR _oddsRatio =
+			    CALCULATE ( MAX ( 'Attrition Coefficient'[odds_ratio] ), 'Attrition Coefficient'[variable] = "training_over_20h" )
+			RETURN
+			    SUMX (
+			        FILTER ( 'Attrition Score', 'Attrition Score'[training_over_20h] = 1 ),
+			        VAR _p = 'Attrition Score'[p_leave]
+			        VAR _oddsWithout = DIVIDE ( DIVIDE ( _p, 1 - _p ), _oddsRatio )
+			        RETURN
+			            DIVIDE ( _oddsWithout, 1 + _oddsWithout ) - _p
+			    )
+		formatString: #,0.0
+		displayFolder: 08 Training
+		lineageTag: 60bf606f-cfd7-5981-a44b-790839fc0e0b
+
+		annotation Numerator = Sum over ml.attrition_scores rows with training_over_20h = 1 of p(without) - p_leave; odds ratio from ml.attrition_coefficients
+
+		annotation Denominator = n/a
+
+		annotation Owner = Learning & Development Lead
+
+	/// (Avoided Leavers Associated with Training x Leaver Cost - Training Cost) / Training Cost for the selected period. A proxy built on an association, not a causal ROI.
+	measure 'Training ROI Proxy' =
+			VAR _benefit = [Avoided Leavers Associated with Training] * [Leaver Cost Value]
+			VAR _cost = [Training Cost]
+			RETURN
+			    DIVIDE ( _benefit - _cost, _cost )
+		formatString: 0.0%
+		displayFolder: 08 Training
+		lineageTag: 5c4ee010-0623-57d1-8183-ae576dd1bbfe
+
+		annotation Numerator = Avoided Leavers Associated with Training x Leaver Cost - Training Cost
+
+		annotation Denominator = Training Cost
+
+		annotation Owner = Learning & Development Lead
+
+	/// Active employees in the learner segment on the visual (k-means, last 24 months).
+	measure 'Segment Employees' = COUNTROWS ( 'Training Segment' )
+		formatString: #,0
+		displayFolder: 08 Training
+		lineageTag: fa42f284-07a5-5aed-ba14-46eed1d86d18
+
+		annotation Numerator = ml.training_segments rows
+
+		annotation Denominator = n/a
+
+		annotation Owner = Learning & Development Lead
+
+	/// Average training hours in the last 24 months for the learner segment on the visual.
+	measure 'Segment Avg Hours 24M' = AVERAGE ( 'Training Segment'[total_hours] )
+		formatString: #,0.0
+		displayFolder: 08 Training
+		lineageTag: 551b8642-365a-5341-9051-ff0075802a02
+
+		annotation Numerator = Sum of ml.training_segments.total_hours
+
+		annotation Denominator = Segment Employees
+
+		annotation Owner = Learning & Development Lead
+
+	/// Selected Cutoff what-if value: employees with p_leave at or above it are flagged (default 15%).
+	measure 'Cutoff Value' = SELECTEDVALUE ( 'Cutoff'[Cutoff], 0.15 )
+		formatString: 0%
+		displayFolder: 09 Model quality
+		lineageTag: 469220bb-fefd-5726-9146-ae9eba9f803c
+
+		annotation Numerator = What-if table Cutoff
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Selected Leaver Cost what-if value in USD (default 40,000).
+	measure 'Leaver Cost Value' = SELECTEDVALUE ( 'Leaver Cost'[Leaver Cost], 40000 )
+		formatString: \$#,0
+		displayFolder: 09 Model quality
+		lineageTag: 3629a8e0-e9da-5995-80d8-95465f0922f5
+
+		annotation Numerator = What-if table Leaver Cost
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Selected Intervention Cost what-if value in USD (default 3,000).
+	measure 'Intervention Cost Value' = SELECTEDVALUE ( 'Intervention Cost'[Intervention Cost], 3000 )
+		formatString: \$#,0
+		displayFolder: 09 Model quality
+		lineageTag: 1e261f84-8d6e-5ea1-a3b1-504c7bda4f3c
+
+		annotation Numerator = What-if table Intervention Cost
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Held-out snapshots flagged at the cutoff who did leave voluntarily within 12 months.
+	measure 'True Positives' =
+			VAR _cutoff = [Cutoff Value]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( 'Attrition Score' ),
+			        'Attrition Score'[split] = "test",
+			        'Attrition Score'[p_leave] >= _cutoff,
+			        'Attrition Score'[left_within_12m] = 1
+			    )
+		formatString: #,0
+		displayFolder: 09 Model quality
+		lineageTag: 14b60568-e7b9-5ea6-9d00-7ee470b441bb
+
+		annotation Numerator = Test rows with p_leave >= cutoff and left_within_12m = 1
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Held-out snapshots not flagged at the cutoff who did leave.
+	measure 'False Negatives' =
+			VAR _cutoff = [Cutoff Value]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( 'Attrition Score' ),
+			        'Attrition Score'[split] = "test",
+			        'Attrition Score'[p_leave] < _cutoff,
+			        'Attrition Score'[left_within_12m] = 1
+			    )
+		formatString: #,0
+		displayFolder: 09 Model quality
+		lineageTag: 70c348cd-2d8b-56ac-9bfd-6e41abffed97
+
+		annotation Numerator = Test rows with p_leave < cutoff and left_within_12m = 1
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Held-out snapshots flagged at the cutoff who stayed.
+	measure 'False Positives' =
+			VAR _cutoff = [Cutoff Value]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( 'Attrition Score' ),
+			        'Attrition Score'[split] = "test",
+			        'Attrition Score'[p_leave] >= _cutoff,
+			        'Attrition Score'[left_within_12m] = 0
+			    )
+		formatString: #,0
+		displayFolder: 09 Model quality
+		lineageTag: 966c86ce-7c8b-5f62-b329-2df6a910ce4e
+
+		annotation Numerator = Test rows with p_leave >= cutoff and left_within_12m = 0
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Held-out snapshots not flagged at the cutoff who stayed.
+	measure 'True Negatives' =
+			VAR _cutoff = [Cutoff Value]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( 'Attrition Score' ),
+			        'Attrition Score'[split] = "test",
+			        'Attrition Score'[p_leave] < _cutoff,
+			        'Attrition Score'[left_within_12m] = 0
+			    )
+		formatString: #,0
+		displayFolder: 09 Model quality
+		lineageTag: b86ad10a-dbf2-5790-88ee-e4948a5966e6
+
+		annotation Numerator = Test rows with p_leave < cutoff and left_within_12m = 0
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Share of actual leavers the model flags at the cutoff: TP / (TP + FN).
+	measure 'Recall %' = DIVIDE ( [True Positives], [True Positives] + [False Negatives] )
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: d7bc212c-7fd8-5790-af75-0113899f9591
+
+		annotation Numerator = True Positives
+
+		annotation Denominator = True Positives + False Negatives
+
+		annotation Owner = People Analytics Lead
+
+	/// Share of flagged employees who actually leave: TP / (TP + FP).
+	measure 'Precision %' = DIVIDE ( [True Positives], [True Positives] + [False Positives] )
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: a3039933-63f0-5ed6-9a22-bc10070766f9
+
+		annotation Numerator = True Positives
+
+		annotation Denominator = True Positives + False Positives
+
+		annotation Owner = People Analytics Lead
+
+	/// Share of held-out snapshots flagged at the cutoff.
+	measure 'Flag Rate %' =
+			DIVIDE (
+			    [True Positives] + [False Positives],
+			    [True Positives] + [False Positives] + [False Negatives] + [True Negatives]
+			)
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: eb59a01e-f2b5-5cca-ac5b-56b16a7453c9
+
+		annotation Numerator = True Positives + False Positives
+
+		annotation Denominator = All test rows
+
+		annotation Owner = People Analytics Lead
+
+	/// Share of held-out snapshots classified correctly at the cutoff.
+	measure 'Accuracy %' =
+			DIVIDE (
+			    [True Positives] + [True Negatives],
+			    [True Positives] + [False Positives] + [False Negatives] + [True Negatives]
+			)
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: 5693c5c8-e1da-5edb-b1af-7f19ba335682
+
+		annotation Numerator = True Positives + True Negatives
+
+		annotation Denominator = All test rows
+
+		annotation Owner = People Analytics Lead
+
+	/// Cost of acting at the cutoff on the test set: missed leavers x Leaver Cost + flagged employees x Intervention Cost (assumes an intervention retains a true positive).
+	measure 'Expected Cost' =
+			[False Negatives] * [Leaver Cost Value]
+			    + ( [True Positives] + [False Positives] ) * [Intervention Cost Value]
+		formatString: \$#,0
+		displayFolder: 09 Model quality
+		lineageTag: d284f682-5954-5e80-9117-67ae660522d1
+
+		annotation Numerator = False Negatives x Leaver Cost + (True Positives + False Positives) x Intervention Cost
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Cost if nobody is flagged: every actual leaver costs the Leaver Cost.
+	measure 'Expected Cost Without Model' = ( [True Positives] + [False Negatives] ) * [Leaver Cost Value]
+		formatString: \$#,0
+		displayFolder: 09 Model quality
+		lineageTag: f8986d8e-2dfb-54ad-9d34-06e8cc050ac9
+
+		annotation Numerator = Actual leavers x Leaver Cost
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Expected Cost Without Model minus Expected Cost at the selected cutoff.
+	measure 'Expected Savings vs No Model' = [Expected Cost Without Model] - [Expected Cost]
+		formatString: \$#,0
+		displayFolder: 09 Model quality
+		lineageTag: 6391e0ca-a7bb-54cb-9a5c-cca8a7a91335
+
+		annotation Numerator = Expected Cost Without Model
+
+		annotation Denominator = Expected Cost (subtracted)
+
+		annotation Owner = People Analytics Lead
+
+	/// Area under the ROC curve on the held-out 30% of employees.
+	measure 'AUC Test' = CALCULATE ( MAX ( 'Attrition Metric'[value] ), 'Attrition Metric'[metric] = "auc_test" )
+		formatString: 0.000
+		displayFolder: 09 Model quality
+		lineageTag: d9b33128-4287-5ac9-8fa8-bc27693202fc
+
+		annotation Numerator = ml.attrition_metrics value for auc_test
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Voluntary 12-month exit rate in the held-out set.
+	measure 'Base Rate Test %' = CALCULATE ( MAX ( 'Attrition Metric'[value] ), 'Attrition Metric'[metric] = "base_rate_test" )
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: 79f02c85-98ed-5dee-8277-0daf30e95ef1
+
+		annotation Numerator = ml.attrition_metrics value for base_rate_test
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Actual 12-month voluntary exit rate of held-out snapshots on the visual (calibration).
+	measure 'Observed Leave Rate %' = CALCULATE ( AVERAGE ( 'Attrition Score'[left_within_12m] ), 'Attrition Score'[split] = "test" )
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: 9c70e1b1-4991-5767-ace6-6fb9d53bd834
+
+		annotation Numerator = Test rows with left_within_12m = 1
+
+		annotation Denominator = Test rows
+
+		annotation Owner = People Analytics Lead
+
+	/// Average predicted probability of held-out snapshots on the visual (calibration).
+	measure 'Avg Predicted Leave Probability %' = CALCULATE ( AVERAGE ( 'Attrition Score'[p_leave] ), 'Attrition Score'[split] = "test" )
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: 2b9341df-282a-5729-9ed9-f589b0a1de3b
+
+		annotation Numerator = Sum of p_leave over test rows
+
+		annotation Denominator = Test rows
+
+		annotation Owner = People Analytics Lead
+
+	/// Employees at the latest snapshot (31-Dec-2025) whose predicted probability is at or above the cutoff.
+	measure 'Current At-Risk Employees' =
+			VAR _cutoff = [Cutoff Value]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( 'Attrition Score' ),
+			        'Attrition Score'[split] = "current",
+			        'Attrition Score'[p_leave] >= _cutoff
+			    )
+		formatString: #,0
+		displayFolder: 09 Model quality
+		lineageTag: 503baf79-a8bb-57b2-8f66-b8621c9c0868
+
+		annotation Numerator = Current-snapshot rows with p_leave >= cutoff
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Average predicted 12-month voluntary exit probability at the latest snapshot.
+	measure 'Current Avg Leave Probability %' = CALCULATE ( AVERAGE ( 'Attrition Score'[p_leave] ), 'Attrition Score'[split] = "current" )
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: 05318e3b-f5e9-52be-8f7c-e493ac7886a5
+
+		annotation Numerator = Sum of p_leave over current rows
+
+		annotation Denominator = Current rows
+
+		annotation Owner = People Analytics Lead
+
+	/// Predicted 12-month voluntary exit probability of the employee snapshot on the visual.
+	measure 'Employee Leave Probability %' = MAX ( 'Attrition Score'[p_leave] )
+		formatString: 0.0%
+		displayFolder: 09 Model quality
+		lineageTag: e9a75e8c-13e8-58e4-a191-c96d38a3492e
+
+		annotation Numerator = ml.attrition_scores.p_leave
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// 1 when the employee snapshot on the visual has p_leave at or above the cutoff, else 0 (use as a visual filter).
+	measure 'Is Flagged at Cutoff' =
+			VAR _cutoff = [Cutoff Value]
+			RETURN
+			    IF ( MAX ( 'Attrition Score'[p_leave] ) >= _cutoff, 1, 0 )
+		formatString: 0
+		displayFolder: 09 Model quality
+		lineageTag: 19d9c93a-b532-5cce-b2b1-b2f945911abb
+
+		annotation Numerator = ml.attrition_scores.p_leave vs Cutoff Value
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Odds ratio of the model variable on the visual (associated with leaving; 1 = no association).
+	measure 'Driver Odds Ratio' = MAX ( 'Attrition Coefficient'[odds_ratio] )
+		formatString: 0.00
+		displayFolder: 09 Model quality
+		lineageTag: c55620d0-4ab4-55de-8b7c-fe96fc19e0b9
+
+		annotation Numerator = ml.attrition_coefficients.odds_ratio
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Lower 95% bound of the odds ratio on the visual.
+	measure 'Driver OR CI Low' = MAX ( 'Attrition Coefficient'[or_ci_low] )
+		formatString: 0.00
+		displayFolder: 09 Model quality
+		lineageTag: ff3396d7-128a-513d-a468-0d6e3299ac2d
+
+		annotation Numerator = ml.attrition_coefficients.or_ci_low
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Upper 95% bound of the odds ratio on the visual.
+	measure 'Driver OR CI High' = MAX ( 'Attrition Coefficient'[or_ci_high] )
+		formatString: 0.00
+		displayFolder: 09 Model quality
+		lineageTag: f699901a-0cdf-59a2-ab44-1aa9553cac8b
+
+		annotation Numerator = ml.attrition_coefficients.or_ci_high
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// True positive rate for the false positive rate on the axis (ROC curve).
+	measure 'ROC True Positive Rate' = MAX ( 'Attrition ROC'[tpr] )
+		formatString: 0.000
+		displayFolder: 09 Model quality
+		lineageTag: 984c2a28-694c-58e1-be60-327050941cba
+
+		annotation Numerator = ml.attrition_roc.tpr
+
+		annotation Denominator = n/a
+
+		annotation Owner = People Analytics Lead
+
+	/// Forecast headcount at the last forecast month in the selection (2026-2027).
+	measure 'Forecast Headcount' =
+			VAR _month = CALCULATE ( MAX ( 'Headcount Forecast'[month_end] ), 'Headcount Forecast'[row_type] = "Forecast" )
+			RETURN
+			    CALCULATE (
+			        SUM ( 'Headcount Forecast'[forecast] ),
+			        'Headcount Forecast'[row_type] = "Forecast",
+			        'Headcount Forecast'[month_end] = _month
+			    )
+		formatString: #,0
+		displayFolder: 10 Forecast
+		lineageTag: 82d0943f-e07b-5f2a-88bd-71da4cf25325
+
+		annotation Numerator = Sum of ml.headcount_forecast.forecast (Forecast rows) at the last month
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Lower bound of the 80% prediction interval (summed across teams: conservative above division level).
+	measure 'Forecast Headcount Lo80' =
+			VAR _month = CALCULATE ( MAX ( 'Headcount Forecast'[month_end] ), 'Headcount Forecast'[row_type] = "Forecast" )
+			RETURN
+			    CALCULATE (
+			        SUM ( 'Headcount Forecast'[lo80] ),
+			        'Headcount Forecast'[row_type] = "Forecast",
+			        'Headcount Forecast'[month_end] = _month
+			    )
+		formatString: #,0
+		displayFolder: 10 Forecast
+		lineageTag: 3e5122bf-8cba-5a09-a269-0e4d74154b91
+
+		annotation Numerator = Sum of ml.headcount_forecast.lo80 at the last month
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Upper bound of the 80% prediction interval (summed across teams: conservative above division level).
+	measure 'Forecast Headcount Hi80' =
+			VAR _month = CALCULATE ( MAX ( 'Headcount Forecast'[month_end] ), 'Headcount Forecast'[row_type] = "Forecast" )
+			RETURN
+			    CALCULATE (
+			        SUM ( 'Headcount Forecast'[hi80] ),
+			        'Headcount Forecast'[row_type] = "Forecast",
+			        'Headcount Forecast'[month_end] = _month
+			    )
+		formatString: #,0
+		displayFolder: 10 Forecast
+		lineageTag: a88d7b61-112b-5f63-b8ac-879a3215c3bd
+
+		annotation Numerator = Sum of ml.headcount_forecast.hi80 at the last month
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Forecast made at 31-Dec-2023 for 2024-2025, at the last month in the selection (for forecast vs actual).
+	measure 'Backtest Forecast Headcount' =
+			VAR _month = CALCULATE ( MAX ( 'Headcount Forecast'[month_end] ), 'Headcount Forecast'[row_type] = "Backtest" )
+			RETURN
+			    CALCULATE (
+			        SUM ( 'Headcount Forecast'[forecast] ),
+			        'Headcount Forecast'[row_type] = "Backtest",
+			        'Headcount Forecast'[month_end] = _month
+			    )
+		formatString: #,0
+		displayFolder: 10 Forecast
+		lineageTag: a1552a07-b139-5bf8-be35-cf9fb2127436
+
+		annotation Numerator = Sum of ml.headcount_forecast.forecast (Backtest rows) at the last month
+
+		annotation Denominator = n/a
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Backtest forecast minus actual headcount at the same month end.
+	measure 'Forecast vs Actual' = [Backtest Forecast Headcount] - [Headcount End]
+		formatString: +#,0;-#,0;0
+		displayFolder: 10 Forecast
+		lineageTag: 133d2b41-8f20-5e1f-970f-e28d597d5e36
+
+		annotation Numerator = Backtest Forecast Headcount
+
+		annotation Denominator = Headcount End (subtracted)
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Backtest forecast error relative to actual headcount.
+	measure 'Forecast vs Actual %' = DIVIDE ( [Backtest Forecast Headcount] - [Headcount End], [Headcount End] )
+		formatString: 0.0%
+		displayFolder: 10 Forecast
+		lineageTag: a5803176-23fc-5373-a62c-81e044ef218e
+
+		annotation Numerator = Backtest Forecast Headcount - Headcount End
+
+		annotation Denominator = Headcount End
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Mean absolute percentage error of the 2024-2025 backtest vs actual, over the month ends in the selection.
+	measure 'MAPE Holdout %' =
+			AVERAGEX (
+			    FILTER ( VALUES ( 'Date'[date] ), 'Date'[is_month_end] ),
+			    VAR _forecast = [Backtest Forecast Headcount]
+			    VAR _actual = [Headcount End]
+			    RETURN
+			        IF ( NOT ISBLANK ( _forecast ) && NOT ISBLANK ( _actual ), DIVIDE ( ABS ( _forecast - _actual ), _actual ) )
+			)
+		formatString: 0.00%
+		displayFolder: 10 Forecast
+		lineageTag: 36a90799-45fe-583c-aa63-4716e55e3aae
+
+		annotation Numerator = Sum of |backtest - actual| / actual per month end
+
+		annotation Denominator = Month ends with a backtest and an actual
+
+		annotation Owner = Workforce Planning Lead
+
+	/// Average rolling-origin backtest MAPE (25 origins, 2021-12..2023-12) over the forecast horizons in the selection; division-level when one division is in context, company-level otherwise.
+	measure 'Backtest MAPE Rolling Origin %' =
+			VAR _oneDivision = DISTINCTCOUNT ( 'Org Unit'[current_division] ) = 1
+			VAR _mape =
+			    CALCULATE (
+			        AVERAGEX (
+			            VALUES ( 'Headcount Forecast'[horizon_months] ),
+			            IF (
+			                _oneDivision,
+			                CALCULATE ( MAX ( 'Headcount Forecast'[backtest_mape] ) ),
+			                CALCULATE ( MAX ( 'Headcount Forecast'[backtest_mape_company] ) )
+			            )
+			        ),
+			        'Headcount Forecast'[row_type] = "Forecast"
+			    )
+			RETURN
+			    DIVIDE ( _mape, 100 )
+		formatString: 0.00%
+		displayFolder: 10 Forecast
+		lineageTag: d34c1b7e-843c-5a0e-bdac-d14fe7ef9df9
+
+		annotation Numerator = ml.headcount_forecast.backtest_mape (percent) averaged over horizons
+
+		annotation Denominator = 100
+
+		annotation Owner = Workforce Planning Lead
+
+	column Placeholder
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 1629ab23-793e-57e3-abd8-7ca56fffbc2c
+		summarizeBy: none
+		sourceColumn: [Placeholder]
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW("Placeholder", 0)
+

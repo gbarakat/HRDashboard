@@ -25,6 +25,11 @@ select
     r.recruiter_hours,
     r.recruiter_hours * {{ var('recruiter_hourly_cost') }}           as internal_cost_usd,
     r.external_cost_usd + r.recruiter_hours * {{ var('recruiter_hourly_cost') }} as total_cost_usd,
+    -- quality of hire: external hire left within 12 months of start (null until 12 months are observable)
+    case
+        when r.fill_type <> 'External' or r.start_date > '{{ var("window_end") }}'::date - interval '12 months' then null
+        else coalesce(x.exit_date <= r.start_date + interval '12 months', false)
+    end                                                              as hire_exited_within_12m,
     r.status = 'Filled'                                              as is_filled,
     coalesce(r.fill_type = 'Internal', false)                        as is_internal_fill,
     coalesce(r.fill_type = 'External', false)                        as is_external_hire
@@ -36,3 +41,6 @@ join {{ ref('dim_location') }} l on l.station_code = ou.station_code
 left join {{ ref('dim_channel') }} c on c.source_code = r.hire_source_code
 left join {{ ref('dim_employee') }} he
     on he.emp_id = r.hired_emp_id and r.start_date between he.valid_from and he.valid_to
+left join (
+    select distinct emp_id, exit_date from {{ ref('dim_employee') }} where exit_date is not null
+) x on x.emp_id = r.hired_emp_id

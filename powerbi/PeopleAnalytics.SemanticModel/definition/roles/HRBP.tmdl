@@ -1,0 +1,10 @@
+/// HR business partners see only the divisions mapped to their login in Security HRBP (current org structure).
+role HRBP
+	modelPermission: read
+
+	tablePermission 'Org Unit' = [current_division] IN CALCULATETABLE ( VALUES ( 'Security HRBP'[division] ), 'Security HRBP'[user_email] = LOWER ( USERPRINCIPALNAME () ) )
+
+	tablePermission 'Security HRBP' = 'Security HRBP'[user_email] = LOWER ( USERPRINCIPALNAME () )
+
+	annotation PBI_Id = 709fe8a3baa750a9832d04fbd61e5b03
+

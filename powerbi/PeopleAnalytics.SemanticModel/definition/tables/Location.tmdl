@@ -1,0 +1,59 @@
+/// Six stations: hub, maintenance base and four outstations.
+table Location
+	lineageTag: 5a47b1de-3cb0-5ca1-8b2c-02f250bc6f4a
+
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a838770d-4a20-5670-a595-311bdd448fc5
+		summarizeBy: none
+		sourceColumn: location_key
+
+	column station_code
+		dataType: string
+		lineageTag: dff0a623-5115-52c0-aec3-cd69fc7c8672
+		summarizeBy: none
+		sourceColumn: station_code
+
+	column station_name
+		dataType: string
+		lineageTag: cf464ae5-c0fc-5499-9522-01ba0e6b15a1
+		summarizeBy: none
+		sourceColumn: station_name
+
+	column city
+		dataType: string
+		lineageTag: 7463e22a-534f-551f-82e9-bec3ec2e952b
+		summarizeBy: none
+		sourceColumn: city
+
+	column country
+		dataType: string
+		lineageTag: 28fc92d5-44ef-5fa4-9566-0d9288fbe6ad
+		summarizeBy: none
+		sourceColumn: country
+
+	column region
+		dataType: string
+		lineageTag: 043d362f-a554-5e20-a127-aa2ac0b2b03a
+		summarizeBy: none
+		sourceColumn: region
+
+	column is_hub
+		dataType: boolean
+		lineageTag: 4fbf6ce0-8b42-5f3d-b269-e6106fd70be0
+		summarizeBy: none
+		sourceColumn: is_hub
+
+	partition Location = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "dim_location"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

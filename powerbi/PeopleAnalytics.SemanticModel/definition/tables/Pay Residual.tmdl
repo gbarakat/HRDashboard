@@ -1,0 +1,69 @@
+/// Written by ml/pay_equity.py: gender-blind fair-pay prediction and standardised residual per employee.
+table 'Pay Residual'
+	lineageTag: 7f1bf100-1331-5bf2-b0f5-662020d202d3
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: ad8d1476-4dcc-5555-a7ba-6e50b28e6699
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		lineageTag: 0a160f2e-f06a-5002-a038-9be8d9003596
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 482a3afa-ed0a-5e85-b62a-63c383e76506
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column review_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 48182eea-248f-5f81-9030-437a0b1c4286
+		summarizeBy: none
+		sourceColumn: review_year
+
+	column is_female
+		dataType: int64
+		formatString: 0
+		lineageTag: 8330798f-46cb-5b29-a2d8-c76b87db6edc
+		summarizeBy: none
+		sourceColumn: is_female
+
+	column base_salary
+		dataType: double
+		lineageTag: 69068a7a-9cf0-506d-9495-41b4ce19b111
+		summarizeBy: none
+		sourceColumn: base_salary
+
+	column pred_salary
+		dataType: double
+		lineageTag: 5db6a26b-0c05-5414-907b-f645224d721a
+		summarizeBy: none
+		sourceColumn: pred_salary
+
+	column std_resid
+		dataType: double
+		lineageTag: d3bd391c-1ee3-5e6d-9ff2-9b440271fa3e
+		summarizeBy: none
+		sourceColumn: std_resid
+
+	partition 'Pay Residual' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "ml", Item = "pay_residuals"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,19 @@
+/// Assumed cost of one retention intervention (USD). What-if parameter.
+table 'Intervention Cost'
+	lineageTag: 9484bd66-0535-54f8-aadb-d55f6ffa1552
+
+	column 'Intervention Cost'
+		formatString: \$#,0
+		lineageTag: b9e4f5a3-c165-5517-8ce3-fbba88852ff2
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+	partition 'Intervention Cost' = calculated
+		mode: import
+		source = GENERATESERIES(0, 10000, 500)
+

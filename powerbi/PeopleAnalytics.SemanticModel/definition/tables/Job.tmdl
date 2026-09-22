@@ -1,0 +1,67 @@
+/// Job title, family and grade (G1-G12) with the critical-role flag.
+table Job
+	lineageTag: 531fecb9-8255-5ac1-ac01-fa40f6ecc8f5
+
+	column job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e7df614a-caf7-52f0-875e-a1ed59db0895
+		summarizeBy: none
+		sourceColumn: job_key
+
+	column job_code
+		dataType: string
+		lineageTag: 1dc11884-6220-536e-b563-9211a59ba441
+		summarizeBy: none
+		sourceColumn: job_code
+
+	column job_title
+		dataType: string
+		lineageTag: b70d5884-daac-59f6-a020-a8a93104e075
+		summarizeBy: none
+		sourceColumn: job_title
+
+	column job_family
+		dataType: string
+		lineageTag: 25e19e4d-2fb3-5b44-9a5e-6d0925c4cdfe
+		summarizeBy: none
+		sourceColumn: job_family
+
+	column grade
+		dataType: string
+		lineageTag: ad1bded5-d7fa-5d4b-9de9-7d2a41955dc5
+		summarizeBy: none
+		sourceColumn: grade
+		sortByColumn: grade_no
+
+	column grade_no
+		dataType: int64
+		formatString: 0
+		lineageTag: c0d8ee00-e04e-569f-ae9f-d2999e362447
+		summarizeBy: none
+		sourceColumn: grade_no
+
+	column grade_band
+		dataType: string
+		lineageTag: 34b39707-71ac-5106-9a1f-b28b404d14c8
+		summarizeBy: none
+		sourceColumn: grade_band
+
+	column critical_role_flag
+		dataType: boolean
+		lineageTag: 697aaf95-3354-5279-97ea-c998d5014ddc
+		summarizeBy: none
+		sourceColumn: critical_role_flag
+
+	partition Job = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "dim_job"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+

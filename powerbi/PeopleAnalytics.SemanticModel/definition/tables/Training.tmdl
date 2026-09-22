@@ -1,0 +1,98 @@
+/// Grain: employee x program x completion date.
+table Training
+	lineageTag: b75a44cc-60e2-5676-a1eb-bebc8c5a5dc7
+
+	column training_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3c217e38-933d-5114-bd53-d490c48cd5e4
+		summarizeBy: none
+		sourceColumn: training_key
+
+	column completion_id
+		dataType: string
+		isHidden
+		lineageTag: 56cfda5a-fc56-5958-b168-7127805e4757
+		summarizeBy: none
+		sourceColumn: completion_id
+
+	column employee_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d9aeb0db-b755-5f75-9949-a52a7fcd9bed
+		summarizeBy: none
+		sourceColumn: employee_key
+
+	column emp_id
+		dataType: string
+		isHidden
+		lineageTag: 51b88719-671e-513a-8008-a20d1404c6d5
+		summarizeBy: none
+		sourceColumn: emp_id
+
+	column program_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c9285fd2-8587-5546-9d76-050eac490afa
+		summarizeBy: none
+		sourceColumn: program_key
+
+	column completion_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 856bd12e-8a23-5128-a436-c12296796777
+		summarizeBy: none
+		sourceColumn: completion_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column org_unit_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: adf60b34-a522-5e56-bf4f-eadfa9740a3a
+		summarizeBy: none
+		sourceColumn: org_unit_key
+
+	column job_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e14dacd0-fe08-5613-86de-464b369626cb
+		summarizeBy: none
+		sourceColumn: job_key
+
+	column location_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: af9553c2-7a89-5bf9-ad2a-b162b37b92c4
+		summarizeBy: none
+		sourceColumn: location_key
+
+	column hours
+		dataType: double
+		lineageTag: 426de978-7d39-5474-a3bc-5c60bb73a75c
+		summarizeBy: none
+		sourceColumn: hours
+
+	column cost_usd
+		dataType: double
+		lineageTag: c8018374-c45b-5ec6-801d-e68676afb6d1
+		summarizeBy: none
+		sourceColumn: cost_usd
+
+	partition Training = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database(PgServer, PgDatabase),
+				    Data = Source{[Schema = "core", Item = "fact_training"]}[Data]
+				in
+				    Data
+
+	annotation PBI_ResultType = Table
+
